@@ -45,11 +45,10 @@ double shrDeltaT()
 #endif
 }
 
-
-
 void bandwidth()
 {
-	printf(	"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
+	printf(
+			"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
 	int g = 0;
 	cl_int error;
 	cl_uint num_platforms;
@@ -98,7 +97,7 @@ void bandwidth()
 
 			// allocate pinned h_b
 			h_b = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, size, NULL, &error);
+			CL_MEM_ALLOC_HOST_PTR, size, NULL, &error);
 			checkOclErrors(error);
 			// --memory=pinned --access=mapped --htod
 			shrDeltaT();
@@ -165,7 +164,6 @@ typedef struct float4
 	float w;
 } float4;
 
-
 static void show_usage(std::string name)
 {
 	std::cerr << "\nUsage: " << name << " <option(s)>" << " Options:\n"
@@ -174,10 +172,8 @@ static void show_usage(std::string name)
 			<< "\t-t \tRun the validity tests\n"
 			<< "\t-s \tRun the sequential algo\n"
 			<< "\t-c \tRun the vanilla cmssw algo\n"
-			<< "\t-f \tRun FKDtree algo\n"
-			<< "\t-a \tRun all the algos\n"
-			<< "\t-ocl \tRun OpenCL search algo\n"
-			<< std::endl;
+			<< "\t-f \tRun FKDtree algo\n" << "\t-a \tRun all the algos\n"
+			<< "\t-ocl \tRun OpenCL search algo\n" << std::endl;
 
 }
 int main(int argc, char* argv[])
@@ -189,7 +185,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	int nPoints=100000;
+	int nPoints = 100000;
 	bool runTheTests = false;
 	bool runSequential = false;
 	bool runFKDTree = false;
@@ -291,7 +287,7 @@ int main(int argc, char* argv[])
 
 	if (runFKDTree)
 	{
-		long int pointsFound=0;
+		long int pointsFound = 0;
 		std::cout << "FKDTree run will start in 1 second.\n" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -313,11 +309,8 @@ int main(int argc, char* argv[])
 				std::cerr << "FKDTree wrong" << std::endl;
 		}
 
-		if(runOpenCL)
+		if (runOpenCL)
 		{
-
-
-
 
 			int g = 0;
 			cl_int error;
@@ -332,7 +325,7 @@ int main(int argc, char* argv[])
 				char platform_name[256];
 				checkOclErrors(
 						clGetPlatformInfo(platform, CL_PLATFORM_NAME, sizeof(platform_name), platform_name, NULL));
-		//		if (strcmp(platform_name, "NVIDIA CUDA")) continue;
+				//		if (strcmp(platform_name, "NVIDIA CUDA")) continue;
 				cl_uint num_devices;
 				checkOclErrors(
 						clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));
@@ -346,11 +339,12 @@ int main(int argc, char* argv[])
 					char device_name[256];
 					checkOclErrors(
 							clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL));
-					cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL,
-							&error);
+					cl_context context = clCreateContext(NULL, 1, &device, NULL,
+							NULL, &error);
 					checkOclErrors(error);
-					cl_command_queue command_queue = clCreateCommandQueue(context,
-							device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);
+					cl_command_queue command_queue = clCreateCommandQueue(
+							context, device, 0/*CL_QUEUE_PROFILING_ENABLE*/,
+							&error);
 					checkOclErrors(error);
 
 					std::chrono::steady_clock::time_point start_opencl =
@@ -367,61 +361,113 @@ int main(int argc, char* argv[])
 					cl_mem d_ids_mem;
 					cl_mem h_ids_mem;
 
-					for(int dim = 0; dim < 3; dim++)
+					void* d_results;
+					void* h_results;
+					cl_mem d_results_mem;
+					cl_mem h_results_mem;
+
+					for (int dim = 0; dim < 3; dim++)
 					{
 
 						//allocating device memory block
-						d_dimensions_mem[dim] = clCreateBuffer(context, CL_MEM_READ_WRITE, nPoints*sizeof(float), NULL,
-													&error);
+						d_dimensions_mem[dim] = clCreateBuffer(context,
+								CL_MEM_READ_WRITE, nPoints * sizeof(float),
+								NULL, &error);
 						checkOclErrors(error);
 
 						//allocating host memory block
 						h_dimensions_mem[dim] = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-								CL_MEM_ALLOC_HOST_PTR, nPoints*sizeof(float), NULL, &error);
-						checkOclErrors(error);
-
-						h_dimensions[dim] = clEnqueueMapBuffer(command_queue, h_dimensions_mem[dim], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE,
-								0, nPoints*sizeof(float), 0, NULL, NULL, &error);
-						checkOclErrors(error);
-						d_dimensions[dim] = clEnqueueMapBuffer(command_queue, d_dimensions_mem[dim], CL_TRUE,
-								CL_MAP_READ | CL_MAP_WRITE, 0, nPoints*sizeof(float), 0, NULL, NULL,
+						CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(float), NULL,
 								&error);
 						checkOclErrors(error);
 
+						h_dimensions[dim] = clEnqueueMapBuffer(command_queue,
+								h_dimensions_mem[dim], CL_TRUE,
+								CL_MAP_READ | CL_MAP_WRITE, 0,
+								nPoints * sizeof(float), 0, NULL, NULL, &error);
+						checkOclErrors(error);
+						d_dimensions[dim] = clEnqueueMapBuffer(command_queue,
+								d_dimensions_mem[dim], CL_TRUE,
+								CL_MAP_READ | CL_MAP_WRITE, 0,
+								nPoints * sizeof(float), 0, NULL, NULL, &error);
+						checkOclErrors(error);
+
 					}
-					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE, nPoints*sizeof(unsigned int), NULL,
-							&error);
+					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+							nPoints * sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 					h_ids_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-							CL_MEM_ALLOC_HOST_PTR, nPoints*sizeof(unsigned int), NULL, &error);
-					checkOclErrors(error);
-
-
-					h_ids = clEnqueueMapBuffer(command_queue, h_ids_mem, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE,
-							0, nPoints*sizeof(unsigned int), 0, NULL, NULL, &error);
-					checkOclErrors(error);
-					d_ids = clEnqueueMapBuffer(command_queue, d_ids_mem, CL_TRUE,
-							CL_MAP_READ | CL_MAP_WRITE, 0, nPoints*sizeof(unsigned int), 0, NULL, NULL,
+					CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
 							&error);
 					checkOclErrors(error);
 
-					for(int dim = 0; dim < 3; dim++)
+					h_ids = clEnqueueMapBuffer(command_queue, h_ids_mem,
+							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
+							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+					d_ids = clEnqueueMapBuffer(command_queue, d_ids_mem,
+							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
+							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+
+					d_results_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+							nPoints * sizeof(unsigned int), NULL, &error);
+					checkOclErrors(error);
+					h_results_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+					CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
+							&error);
+					checkOclErrors(error);
+
+					h_results = clEnqueueMapBuffer(command_queue, h_results_mem,
+							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
+							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+					d_results = clEnqueueMapBuffer(command_queue, d_results_mem,
+							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
+							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+
+					for (int dim = 0; dim < 3; dim++)
 					{
-						memcpy(h_dimensions[dim], kdtree.getDimensionVector(dim).data(),nPoints*sizeof(float));
-						memcpy(d_dimensions[dim], h_dimensions[dim], nPoints*sizeof(float));
-
-
+						memcpy(h_dimensions[dim],
+								kdtree.getDimensionVector(dim).data(),
+								nPoints * sizeof(float));
+						memcpy(d_dimensions[dim], h_dimensions[dim],
+								nPoints * sizeof(float));
 
 					}
-					memcpy(h_ids, kdtree.getIdVector().data(),nPoints*sizeof(unsigned int));
+					memcpy(h_ids, kdtree.getIdVector().data(),
+							nPoints * sizeof(unsigned int));
 
-					memcpy(d_ids, h_ids, nPoints*sizeof(unsigned int));
+					memcpy(d_ids, h_ids, nPoints * sizeof(unsigned int));
+
+					memcpy(d_results, h_ids, nPoints * sizeof(unsigned int));
+					memcpy(h_results, d_results,
+							nPoints * sizeof(unsigned int));
+
 					std::chrono::steady_clock::time_point end_opencl =
 							std::chrono::steady_clock::now();
-					std::cout << "initialization of buffers using opencl device "<<  platform_name << " " << device_name<< " for " << nPoints << " points took "
-							<< std::chrono::duration_cast < std::chrono::milliseconds
-							> (end_opencl - start_opencl).count() << "ms" << std::endl;
-					for(int dim = 0; dim < 3; dim++)
+
+					unsigned int* risultati = (unsigned int*) h_results;
+					for (int i = 0; i < nPoints; ++i)
+					{
+						std::cout << risultati[i] << std::endl;
+
+					}
+
+					std::cout
+							<< "initialization of buffers using opencl device "
+							<< platform_name << " " << device_name << " for "
+							<< nPoints << " points took "
+							<< std::chrono::duration_cast
+							< std::chrono::milliseconds
+							> (end_opencl - start_opencl).count() << "ms"
+									<< std::endl;
+					for (int dim = 0; dim < 3; dim++)
 					{
 
 						checkOclErrors(
@@ -433,18 +479,31 @@ int main(int argc, char* argv[])
 
 					}
 
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, d_ids_mem, d_ids, 0, NULL, NULL));
+					checkOclErrors(error);
+					checkOclErrors(	clEnqueueUnmapMemObject(command_queue, h_ids_mem, h_ids, 0,	NULL, NULL));
+								checkOclErrors(error);
 					checkOclErrors(clFinish(command_queue));
+
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, d_results_mem, d_results, 0, NULL, NULL));
+					checkOclErrors(error);
+					checkOclErrors(	clEnqueueUnmapMemObject(command_queue, h_results_mem, h_results, 0,	NULL, NULL));
+								checkOclErrors(error);
+					checkOclErrors(clFinish(command_queue));
+
+
 
 
 					// deallocate pinned h_b
 
-
-					for(int dim = 0; dim < 3; dim++)
+					for (int dim = 0; dim < 3; dim++)
 					{
-						checkOclErrors(clReleaseMemObject(d_dimensions_mem[dim]));
-						checkOclErrors(clReleaseMemObject(h_dimensions_mem[dim]));
-
-
+						checkOclErrors(
+								clReleaseMemObject(d_dimensions_mem[dim]));
+						checkOclErrors(
+								clReleaseMemObject(h_dimensions_mem[dim]));
 
 					}
 					checkOclErrors(clReleaseMemObject(h_ids_mem));
@@ -457,24 +516,21 @@ int main(int argc, char* argv[])
 			}
 			free(platforms);
 
-
-
-
 		}
-
 
 		std::chrono::steady_clock::time_point start_searching =
 				std::chrono::steady_clock::now();
 		for (int i = 0; i < nPoints; ++i)
-			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
+			pointsFound +=
+					kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
 		std::chrono::steady_clock::time_point end_searching =
 				std::chrono::steady_clock::now();
 
 		std::cout << "searching points using FKDTree took "
 				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_searching - start_searching).count()<< "ms\n"
-				<< " found points: " << pointsFound<< "\n******************************\n"
-						<< std::endl;
+				> (end_searching - start_searching).count() << "ms\n"
+						<< " found points: " << pointsFound
+						<< "\n******************************\n" << std::endl;
 	}
 //	int pointsFoundNaive = 0;
 //
@@ -509,12 +565,12 @@ int main(int argc, char* argv[])
 		std::cout << "Sequential search algorithm took "
 				<< std::chrono::duration_cast < std::chrono::milliseconds
 				> (end_sequential - start_sequential).count() << "ms\n"
-				<< " found points: " << pointsFound<< "\n******************************\n" << std::endl;
+						<< " found points: " << pointsFound
+						<< "\n******************************\n" << std::endl;
 	}
 
 	if (runOldKDTree)
 	{
-
 
 		std::cout << "Vanilla CMSSW KDTree run will start in 1 second.\n"
 				<< std::endl;
@@ -580,14 +636,17 @@ int main(int argc, char* argv[])
 		std::chrono::steady_clock::time_point end_searching =
 				std::chrono::steady_clock::now();
 
-		std::cout << "building Vanilla CMSSW KDTree with " << nPoints << " points took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
+		std::cout << "building Vanilla CMSSW KDTree with " << nPoints
+				<< " points took " << std::chrono::duration_cast
+				< std::chrono::milliseconds
 				> (end_building - start_building).count() << "ms" << std::endl;
 		std::cout << "searching points using Vanilla CMSSW KDTree took "
 				<< std::chrono::duration_cast < std::chrono::milliseconds
 				> (end_searching - start_searching).count() << "ms"
 						<< std::endl;
-		std::cout << pointsFound << " points found using Vanilla CMSSW KDTree\n******************************\n"<< std::endl;
+		std::cout << pointsFound
+				<< " points found using Vanilla CMSSW KDTree\n******************************\n"
+				<< std::endl;
 
 		delete[] cmssw_points;
 	}
