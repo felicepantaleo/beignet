@@ -460,6 +460,52 @@ int main(int argc, char* argv[])
 
 					}*/
 
+					const size_t lws = 256;
+					const size_t gws = 32 * lws;
+					ifstream ifs("searchInTheBox.cl");
+					string source((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+					const char* sources[] = { source.data() };
+					const size_t source_length = source.length();
+
+					cl_program program = clCreateProgramWithSource(context, 1, sources, &source_length, &error);
+					checkOclErrors(error);
+
+					checkOclErrors(clBuildProgram(program, 0, NULL, "-cl-fast-relaxed-math", NULL, NULL));
+					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
+					checkOclErrors(error);
+
+					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(cl_ulong), &n));
+					checkOclErrors(clSetKernelArg(kernel, 1, sizeof(cl_ulong), &baseOffset));
+					checkOclErrors(clSetKernelArg(kernel, 2, sizeof(cl_mem), &accd));
+					cl_event kernel_event;
+					checkOclErrors(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 					std::cout
 							<< "initialization of buffers using opencl device "
 							<< platform_name << " " << device_name << " for "
