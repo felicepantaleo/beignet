@@ -90,32 +90,6 @@ int main(int argc, char* argv[])
 				// allocate pinned h_b
 				h_b = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */CL_MEM_ALLOC_HOST_PTR, size, NULL, &error);
 				checkOclErrors(error);
-				// --memory=pinned --access=direct --htod
-				shrDeltaT();
-				h_p = clEnqueueMapBuffer(command_queue, h_b, CL_TRUE, CL_MAP_READ, 0, size, 0, NULL, NULL, &error);
-				checkOclErrors(error);
-				for (int i = 0; i < iteration; ++i)
-				{
-					checkOclErrors(clEnqueueWriteBuffer(command_queue, d_b, CL_FALSE, 0, size, h_p, 0, NULL, NULL));
-				}
-				checkOclErrors(clEnqueueUnmapMemObject(command_queue, h_b, h_p, 0, NULL, NULL));
-				checkOclErrors(clFinish(command_queue));
-				time = shrDeltaT();
-				bandwidth = bandwidth_unit / time;
-				printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name, device_name, size, "pinned", "direct", "HtoD", time, bandwidth);
-				// --memory=pinned --access=direct --dtoh
-				shrDeltaT();
-				h_p = clEnqueueMapBuffer(command_queue, h_b, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, size, 0, NULL, NULL, &error);
-				checkOclErrors(error);
-				for (int i = 0; i < iteration; ++i)
-				{
-					checkOclErrors(clEnqueueReadBuffer(command_queue, d_b, CL_FALSE, 0, size, h_p, 0, NULL, NULL));
-				}
-				checkOclErrors(clEnqueueUnmapMemObject(command_queue, h_b, h_p, 0, NULL, NULL));
-				checkOclErrors(clFinish(command_queue));
-				time = shrDeltaT();
-				bandwidth = bandwidth_unit / time;
-				printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name, device_name, size, "pinned", "direct", "DtoH", time, bandwidth);
 				// --memory=pinned --access=mapped --htod
 				shrDeltaT();
 				h_p = clEnqueueMapBuffer(command_queue, h_b, CL_TRUE, CL_MAP_READ, 0, size, 0, NULL, NULL, &error);
@@ -148,26 +122,7 @@ int main(int argc, char* argv[])
 				time = shrDeltaT();
 				bandwidth = bandwidth_unit / time;
 				printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name, device_name, size, "pinned", "mapped", "DtoH", time, bandwidth);
-				// --memory=pinned --access=copy --htod
-				shrDeltaT();
-				for (int i = 0; i < iteration; ++i)
-				{
-					checkOclErrors(clEnqueueCopyBuffer(command_queue, h_b, d_b, 0, 0, size, 0, NULL, NULL));
-				}
-				checkOclErrors(clFinish(command_queue));
-				time = shrDeltaT();
-				bandwidth = bandwidth_unit / time;
-				printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name, device_name, size, "pinned", "copy", "HtoD", time, bandwidth);
-				// --memory=pinned --access=copy --dtoh
-				shrDeltaT();
-				for (int i = 0; i < iteration; ++i)
-				{
-					checkOclErrors(clEnqueueCopyBuffer(command_queue, d_b, h_b, 0, 0, size, 0, NULL, NULL));
-				}
-				checkOclErrors(clFinish(command_queue));
-				time = shrDeltaT();
-				bandwidth = bandwidth_unit / time;
-				printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name, device_name, size, "pinned", "copy", "DtoH", time, bandwidth);
+
 				// deallocate pinned h_b
 				checkOclErrors(clReleaseMemObject(h_b));
 
