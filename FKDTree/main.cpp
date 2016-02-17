@@ -371,31 +371,28 @@ int main(int argc, char* argv[])
 
 					const size_t maxResultSize = nPoints / 1000;
 
+					//allocating device memory block
+					d_dimensions_mem = clCreateBuffer(context,
+							CL_MEM_READ_WRITE, 3 * nPoints * sizeof(float),
+							NULL, &error);
+					checkOclErrors(error);
 
+					//allocating host memory block
+					h_dimensions_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+					CL_MEM_ALLOC_HOST_PTR, 3 * nPoints * sizeof(float), NULL,
+							&error);
+					checkOclErrors(error);
 
-						//allocating device memory block
-						d_dimensions_mem = clCreateBuffer(context,
-								CL_MEM_READ_WRITE, 3*nPoints * sizeof(float),
-								NULL, &error);
-						checkOclErrors(error);
-
-						//allocating host memory block
-						h_dimensions_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-						CL_MEM_ALLOC_HOST_PTR, 3* nPoints * sizeof(float), NULL,
-								&error);
-						checkOclErrors(error);
-
-						h_dimensions = clEnqueueMapBuffer(command_queue,
-								h_dimensions_mem, CL_TRUE,
-								CL_MAP_READ | CL_MAP_WRITE, 0,
-								 3*nPoints * sizeof(float), 0, NULL, NULL, &error);
-						checkOclErrors(error);
-						d_dimensions = clEnqueueMapBuffer(command_queue,
-								d_dimensions_mem, CL_TRUE,
-								CL_MAP_READ | CL_MAP_WRITE, 0,
-								 3*nPoints * sizeof(float), 0, NULL, NULL, &error);
-						checkOclErrors(error);
-
+					h_dimensions = clEnqueueMapBuffer(command_queue,
+							h_dimensions_mem, CL_TRUE,
+							CL_MAP_READ | CL_MAP_WRITE, 0,
+							3 * nPoints * sizeof(float), 0, NULL, NULL, &error);
+					checkOclErrors(error);
+					d_dimensions = clEnqueueMapBuffer(command_queue,
+							d_dimensions_mem, CL_TRUE,
+							CL_MAP_READ | CL_MAP_WRITE, 0,
+							3 * nPoints * sizeof(float), 0, NULL, NULL, &error);
+					checkOclErrors(error);
 
 					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 							nPoints * sizeof(unsigned int), NULL, &error);
@@ -441,15 +438,14 @@ int main(int argc, char* argv[])
 
 					for (int dim = 0; dim < 3; dim++)
 					{
-						float* dummy_dim = (float*)(h_dimensions);
-						memcpy(&dummy_dim[nPoints*dim],
+						float* dummy_dim = (float*) (h_dimensions);
+						memcpy(&dummy_dim[nPoints * dim],
 								kdtree.getDimensionVector(dim).data(),
 								nPoints * sizeof(float));
 
-
 					}
 					memcpy(d_dimensions, h_dimensions,
-							3*nPoints * sizeof(float));
+							3 * nPoints * sizeof(float));
 					memcpy(h_ids, kdtree.getIdVector().data(),
 							nPoints * sizeof(unsigned int));
 
@@ -498,14 +494,14 @@ int main(int argc, char* argv[])
 							clSetKernelArg(kernel, 0, sizeof(unsigned int),
 									&nPoints));
 					checkOclErrors(
-							clSetKernelArg(kernel, 1,
-									sizeof(cl_mem), &d_dimensions_mem));
+							clSetKernelArg(kernel, 1, sizeof(cl_mem),
+									&d_dimensions_mem));
 					checkOclErrors(
-							clSetKernelArg(kernel, 2,
-									sizeof(cl_mem), &d_ids_mem));
+							clSetKernelArg(kernel, 2, sizeof(cl_mem),
+									&d_ids_mem));
 					checkOclErrors(
-							clSetKernelArg(kernel, 3,
-									sizeof(cl_mem),&d_results_mem));
+							clSetKernelArg(kernel, 3, sizeof(cl_mem),
+									&d_results_mem));
 
 					cl_event kernel_event;
 					checkOclErrors(
@@ -524,15 +520,12 @@ int main(int argc, char* argv[])
 							> (end_opencl - start_opencl).count() << "ms"
 									<< std::endl;
 
-
-						checkOclErrors(
-								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
-						checkOclErrors(error);
-						checkOclErrors(
-								clEnqueueUnmapMemObject(command_queue, h_dimensions_mem, h_dimensions, 0, NULL, NULL));
-						checkOclErrors(error);
-
-
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
+					checkOclErrors(error);
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, h_dimensions_mem, h_dimensions, 0, NULL, NULL));
+					checkOclErrors(error);
 
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_ids_mem, d_ids, 0, NULL, NULL));
@@ -552,12 +545,8 @@ int main(int argc, char* argv[])
 
 					// deallocate pinned h_b
 
-
-						checkOclErrors(
-								clReleaseMemObject(d_dimensions_mem));
-						checkOclErrors(
-								clReleaseMemObject(h_dimensions_mem));
-
+					checkOclErrors(clReleaseMemObject(d_dimensions_mem));
+					checkOclErrors(clReleaseMemObject(h_dimensions_mem));
 
 					checkOclErrors(clReleaseMemObject(h_ids_mem));
 					checkOclErrors(clReleaseMemObject(d_ids_mem));
