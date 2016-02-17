@@ -557,6 +557,9 @@ int main(int argc, char* argv[])
 					checkOclErrors(clReleaseMemObject(d_ids_mem));
 
 					checkOclErrors(clReleaseCommandQueue(command_queue));
+
+					checkOclErrors(clReleaseKernel(kernel));
+					checkOclErrors(clReleaseProgram(program));
 					checkOclErrors(clReleaseContext(context));
 				}
 				free(devices);
