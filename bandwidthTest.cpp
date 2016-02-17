@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 		checkOclErrors(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));
 		cl_device_id* devices = (cl_device_id*)malloc(sizeof(cl_device_id) * num_devices);
 		checkOclErrors(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices, devices, NULL));
-		for (cl_uint d = 0; d < 1; ++d, ++g)
+		for (cl_uint d = 0; d < num_devices; ++d, ++g)
 		{
 			cl_device_id device = devices[d];
 			char device_name[256];
@@ -71,11 +71,9 @@ int main(int argc, char* argv[])
 			checkOclErrors(error);
 			cl_command_queue command_queue = clCreateCommandQueue(context, device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);
 			checkOclErrors(error);
-			for (int s = 0; s < n; ++s)
-			{
-				const size_t size = sizes[s];
-				const int iteration = iterations[s];
-				const double bandwidth_unit = (double)size * iteration / (1 << 20);
+
+				const size_t size = 100000*sizeof(float);
+				const double bandwidth_unit = (double)size / (1 << 20);
 				void* h_p = NULL;
 				void* d_p = NULL;
 				cl_mem h_b;
@@ -96,10 +94,8 @@ int main(int argc, char* argv[])
 				checkOclErrors(error);
 				d_p = clEnqueueMapBuffer(command_queue, d_b, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, size, 0, NULL, NULL, &error);
 				checkOclErrors(error);
-				for (int i = 0; i < iteration; i++)
-				{
+
 					memcpy(d_p, h_p, size);
-				}
 				checkOclErrors(clEnqueueUnmapMemObject(command_queue, d_b, d_p, 0, NULL, NULL));
 				checkOclErrors(clEnqueueUnmapMemObject(command_queue, h_b, h_p, 0, NULL, NULL));
 				checkOclErrors(clFinish(command_queue));
@@ -112,10 +108,9 @@ int main(int argc, char* argv[])
 				checkOclErrors(error);
 				d_p = clEnqueueMapBuffer(command_queue, d_b, CL_TRUE, CL_MAP_READ, 0, size, 0, NULL, NULL, &error);
 				checkOclErrors(error);
-				for (int i = 0; i < iteration; i++)
-				{
+
 					memcpy(h_p, d_p, size);
-				}
+
 				checkOclErrors(clEnqueueUnmapMemObject(command_queue, d_b, d_p, 0, NULL, NULL));
 				checkOclErrors(clEnqueueUnmapMemObject(command_queue, h_b, h_p, 0, NULL, NULL));
 				checkOclErrors(clFinish(command_queue));
@@ -127,7 +122,7 @@ int main(int argc, char* argv[])
 				checkOclErrors(clReleaseMemObject(h_b));
 
 				checkOclErrors(clReleaseMemObject(d_b));
-			}
+
 			checkOclErrors(clReleaseCommandQueue(command_queue));
 			checkOclErrors(clReleaseContext(context));
 		}
