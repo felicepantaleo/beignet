@@ -1,10 +1,10 @@
-CC=g++ -O2
+CC=clang -O2
 
-prova_felice: prova_felice.o
-	$(CC) -o $@ $^ -lOpenCL
+bandwidthTest: bandwidthTest.o
+	$(CC) -o $@ $^ -L${ICD_ROOT}/bin -L${AMDAPPSDKROOT}/lib/x86_64 -L${INTELOCLSDKROOT}/lib/x64 -lOpenCL
 
 %.o: %.cpp
-	$(CC) -o $@ $< -c 
+	$(CC) -o $@ $< -c -I${ICD_ROOT}/inc -I${AMDAPPSDKROOT}/include -I${INTELOCLSDKROOT}/include
 
 clean:
-	rm -f prova_felice *.o
+	rm -f bandwidthTest *.o
