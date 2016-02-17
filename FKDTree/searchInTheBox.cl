@@ -43,6 +43,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 
 	Queue indecesToVisit;
 	indecesToVisit.front = indecesToVisit.tail =indecesToVisit.size =0;
+	unsigned int pointsFound=0;
+	unsigned int resultIndex = nPoints*(point_index+1);
 
 
 //		std::deque<unsigned int> indecesToVisit;
