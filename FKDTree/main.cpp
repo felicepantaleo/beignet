@@ -353,19 +353,19 @@ int main(int argc, char* argv[])
 							device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);
 					checkOclErrors(error);
 
-
+					std::chrono::steady_clock::time_point start_opencl =
+							std::chrono::steady_clock::now();
 
 					cl_mem d_dimensions_mem[3];
 					cl_mem h_dimensions_mem[3];
 
-					float* d_dimensions[3];
-					float* h_dimensions[3];
+					void* d_dimensions[3];
+					void* h_dimensions[3];
 
-					unsigned int* d_ids = nullptr;
-					unsigned int* h_ids = nullptr;
+					void* d_ids = nullptr;
+					void* h_ids = nullptr;
 					cl_mem d_ids_mem;
 					cl_mem h_ids_mem;
-					shrDeltaT();
 
 					for(int dim = 0; dim < 3; dim++)
 					{
@@ -407,18 +407,20 @@ int main(int argc, char* argv[])
 
 					for(int dim = 0; dim < 3; dim++)
 					{
-
-						h_dimensions[dim] =kdtree.getDimensionVector(dim).data();
+						memcpy(h_dimensions[dim], kdtree.getDimensionVector(dim).data(),nPoints*sizeof(float));
 						memcpy(d_dimensions[dim], h_dimensions[dim], nPoints*sizeof(float));
 
 
 
 					}
-					h_ids =kdtree.getIdVector().data();
+					memcpy(h_ids, kdtree.getIdVector().data(),nPoints*sizeof(unsigned int));
 
 					memcpy(d_ids, h_ids, nPoints*sizeof(unsigned int));
-
-
+					std::chrono::steady_clock::time_point end_opencl =
+							std::chrono::steady_clock::now();
+					std::cout << "initialization of buffers using opencl for " << nPoints << " points took "
+							<< std::chrono::duration_cast < std::chrono::milliseconds
+							> (end_opencl - start_opencl).count() << "ms" << std::endl;
 					for(int dim = 0; dim < 3; dim++)
 					{
 
@@ -432,11 +434,7 @@ int main(int argc, char* argv[])
 					}
 
 					checkOclErrors(clFinish(command_queue));
-					time = shrDeltaT();
-					bandwidth = 0;
-					printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name,
-							device_name, nPoints*sizeof(float), "pinned", "mapped", "HtoD", time,
-							bandwidth);
+
 
 					// deallocate pinned h_b
 

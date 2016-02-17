@@ -33,7 +33,7 @@ public:
 			x.resize(theNumberOfPoints);
 		theIntervalLength.resize(theNumberOfPoints, 0);
 		theIntervalMin.resize(theNumberOfPoints, 0);
-		theIds.reserve(theNumberOfPoints);
+		theIds.resize(theNumberOfPoints);
 		thePoints.reserve(theNumberOfPoints);
 
 	}
