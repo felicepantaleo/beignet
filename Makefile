@@ -1,10 +1,10 @@
 CC=g++ -O2
 
 bandwidthTest: bandwidthTest.o
-	$(CC) -o $@ $^ -L${ICD_ROOT}/bin -L${AMDAPPSDKROOT}/lib/x86_64 -L${INTELOCLSDKROOT}/lib/x64 -lOpenCL
+	$(CC) -o $@ $^  -lOpenCL
 
 %.o: %.cpp
-	$(CC) -o $@ $< -c -I${ICD_ROOT}/inc -I${AMDAPPSDKROOT}/include -I${INTELOCLSDKROOT}/include
+	$(CC) -o $@ $< -c 
 
 clean:
 	rm -f bandwidthTest *.o
