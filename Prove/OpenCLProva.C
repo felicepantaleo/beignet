@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cassert>
 #include <CL/cl.h>
-#include "../cl_helper.h"
+#include "cl_helper.h"
 
 using namespace std;
 
