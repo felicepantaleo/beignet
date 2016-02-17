@@ -528,10 +528,10 @@ int main(int argc, char* argv[])
 					{
 
 						checkOclErrors(
-								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem[dim], d_dimensions[dim], 0, NULL, NULL));
+								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
 						checkOclErrors(error);
 						checkOclErrors(
-								clEnqueueUnmapMemObject(command_queue, h_dimensions_mem[dim], h_dimensions[dim], 0, NULL, NULL));
+								clEnqueueUnmapMemObject(command_queue, h_dimensions_me, h_dimensions, 0, NULL, NULL));
 						checkOclErrors(error);
 
 					}
@@ -554,14 +554,13 @@ int main(int argc, char* argv[])
 
 					// deallocate pinned h_b
 
-					for (int dim = 0; dim < 3; dim++)
-					{
-						checkOclErrors(
-								clReleaseMemObject(d_dimensions_mem[dim]));
-						checkOclErrors(
-								clReleaseMemObject(h_dimensions_mem[dim]));
 
-					}
+						checkOclErrors(
+								clReleaseMemObject(d_dimensions_mem));
+						checkOclErrors(
+								clReleaseMemObject(h_dimensions_mem));
+
+
 					checkOclErrors(clReleaseMemObject(h_ids_mem));
 					checkOclErrors(clReleaseMemObject(d_ids_mem));
 
