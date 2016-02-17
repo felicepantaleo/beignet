@@ -9,6 +9,8 @@
 #include <string.h>
 #include <CL/cl.h>
 #include "cl_helper.h"
+#include <fstream>
+
 #include <stdlib.h>
 #include <sys/time.h>
 
