@@ -365,6 +365,8 @@ int main(int argc, char* argv[])
 					void* h_results;
 					cl_mem d_results_mem;
 					cl_mem h_results_mem;
+                    
+                    const size_t maxResultSize = nPoints /1000;
 
 					for (int dim = 0; dim < 3; dim++)
 					{
@@ -413,21 +415,21 @@ int main(int argc, char* argv[])
 					checkOclErrors(error);
 
 					d_results_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-							nPoints * sizeof(unsigned int), NULL, &error);
+							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 					h_results_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
+					CL_MEM_ALLOC_HOST_PTR, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int), NULL,
 							&error);
 					checkOclErrors(error);
 
 					h_results = clEnqueueMapBuffer(command_queue, h_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
 					d_results = clEnqueueMapBuffer(command_queue, d_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							nPoints * sizeof(unsigned int), 0, NULL, NULL,
+							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
 
@@ -446,18 +448,17 @@ int main(int argc, char* argv[])
 					memcpy(d_ids, h_ids, nPoints * sizeof(unsigned int));
 
 					memcpy(d_results, h_ids, nPoints * sizeof(unsigned int));
-					memcpy(h_results, d_results,
-							nPoints * sizeof(unsigned int));
+					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
 
 					std::chrono::steady_clock::time_point end_opencl =
 							std::chrono::steady_clock::now();
 
-					unsigned int* risultati = (unsigned int*) h_results;
-					for (int i = 0; i < nPoints; ++i)
+					//unsigned int* risultati = (unsigned int*) h_results;
+					/*for (int i = 0; i < nPoints; ++i)
 					{
 						std::cout << risultati[i] << std::endl;
 
-					}
+					}*/
 
 					std::cout
 							<< "initialization of buffers using opencl device "
