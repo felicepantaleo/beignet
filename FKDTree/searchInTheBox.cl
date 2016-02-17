@@ -2,10 +2,7 @@
 
 struct Queue
 {
-	Queue() :
-			front(0), tail(0), size(0)
-	{
-	}
+
 
 	unsigned int data[MAX_SIZE];
 	unsigned int front;
@@ -45,6 +42,9 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 
 
 	Queue indecesToVisit;
+	indecesToVisit.front = indecesToVisit.tail =indecesToVisit.size =0;
+
+
 //		std::deque<unsigned int> indecesToVisit;
 //		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 //
