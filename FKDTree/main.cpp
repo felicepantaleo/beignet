@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 
 
 
-			printf(	"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
+
 			int g = 0;
 			cl_int error;
 			cl_uint num_platforms;
@@ -418,7 +418,7 @@ int main(int argc, char* argv[])
 					memcpy(d_ids, h_ids, nPoints*sizeof(unsigned int));
 					std::chrono::steady_clock::time_point end_opencl =
 							std::chrono::steady_clock::now();
-					std::cout << "initialization of buffers using opencl for " << nPoints << " points took "
+					std::cout << "initialization of buffers using opencl device "<<  platform_name << " " << device_name<< " for " << nPoints << " points took "
 							<< std::chrono::duration_cast < std::chrono::milliseconds
 							> (end_opencl - start_opencl).count() << "ms" << std::endl;
 					for(int dim = 0; dim < 3; dim++)
