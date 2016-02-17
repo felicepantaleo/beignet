@@ -531,7 +531,7 @@ int main(int argc, char* argv[])
 								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
 						checkOclErrors(error);
 						checkOclErrors(
-								clEnqueueUnmapMemObject(command_queue, h_dimensions_me, h_dimensions, 0, NULL, NULL));
+								clEnqueueUnmapMemObject(command_queue, h_dimensions_mem, h_dimensions, 0, NULL, NULL));
 						checkOclErrors(error);
 
 					}
