@@ -1,6 +1,6 @@
 #define MAX_SIZE 15
 
-struct Queue
+typedef struct
 {
 
 
@@ -8,7 +8,7 @@ struct Queue
 	unsigned int front;
 	unsigned int tail;
 	unsigned int size;
-};
+} Queue;
 bool push_back(Queue* queue, unsigned int index)
 {
 	if (queue->size < MAX_SIZE)
