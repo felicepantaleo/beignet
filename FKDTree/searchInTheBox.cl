@@ -1,4 +1,4 @@
-__kernel void SearchInTheKDBox(unsigned int nPoints, __global float** dimensions, __global unsigned int* ids, __global unsigned int* results)
+__kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions, __global unsigned int* ids, __global unsigned int* results)
 {
 //		std::deque<unsigned int> indecesToVisit;
 //		std::vector<KDPoint<TYPE, numberOfDimensions> > result;

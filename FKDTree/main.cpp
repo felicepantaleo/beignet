@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
 					checkOclErrors(
 							clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL));
 					cl_context context = clCreateContext(NULL, 1, &device, NULL,
-							NULL, &error);
+					NULL, &error);
 					checkOclErrors(error);
 					cl_command_queue command_queue = clCreateCommandQueue(
 							context, device, 0/*CL_QUEUE_PROFILING_ENABLE*/,
@@ -353,11 +353,11 @@ int main(int argc, char* argv[])
 					std::chrono::steady_clock::time_point start_opencl =
 							std::chrono::steady_clock::now();
 
-					cl_mem d_dimensions_mem[3];
-					cl_mem h_dimensions_mem[3];
+					cl_mem d_dimensions_mem;
+					cl_mem h_dimensions_mem;
 
-					void* d_dimensions[3];
-					void* h_dimensions[3];
+					void* d_dimensions;
+					void* h_dimensions;
 
 					void* d_ids = nullptr;
 					void* h_ids = nullptr;
@@ -368,36 +368,35 @@ int main(int argc, char* argv[])
 					void* h_results;
 					cl_mem d_results_mem;
 					cl_mem h_results_mem;
-                    
-                    const size_t maxResultSize = nPoints /1000;
 
-					for (int dim = 0; dim < 3; dim++)
-					{
+					const size_t maxResultSize = nPoints / 1000;
+
+
 
 						//allocating device memory block
-						d_dimensions_mem[dim] = clCreateBuffer(context,
-								CL_MEM_READ_WRITE, nPoints * sizeof(float),
+						d_dimensions_mem = clCreateBuffer(context,
+								CL_MEM_READ_WRITE, 3*nPoints * sizeof(float),
 								NULL, &error);
 						checkOclErrors(error);
 
 						//allocating host memory block
-						h_dimensions_mem[dim] = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-						CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(float), NULL,
+						h_dimensions_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+						CL_MEM_ALLOC_HOST_PTR, 3* nPoints * sizeof(float), NULL,
 								&error);
 						checkOclErrors(error);
 
-						h_dimensions[dim] = clEnqueueMapBuffer(command_queue,
-								h_dimensions_mem[dim], CL_TRUE,
+						h_dimensions = clEnqueueMapBuffer(command_queue,
+								h_dimensions_mem, CL_TRUE,
 								CL_MAP_READ | CL_MAP_WRITE, 0,
-								nPoints * sizeof(float), 0, NULL, NULL, &error);
+								 3*nPoints * sizeof(float), 0, NULL, NULL, &error);
 						checkOclErrors(error);
-						d_dimensions[dim] = clEnqueueMapBuffer(command_queue,
-								d_dimensions_mem[dim], CL_TRUE,
+						d_dimensions = clEnqueueMapBuffer(command_queue,
+								d_dimensions_mem, CL_TRUE,
 								CL_MAP_READ | CL_MAP_WRITE, 0,
-								nPoints * sizeof(float), 0, NULL, NULL, &error);
+								 3*nPoints * sizeof(float), 0, NULL, NULL, &error);
 						checkOclErrors(error);
 
-					}
+
 					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 							nPoints * sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
@@ -418,38 +417,42 @@ int main(int argc, char* argv[])
 					checkOclErrors(error);
 
 					d_results_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), NULL, &error);
+							(nPoints + nPoints * maxResultSize)
+									* sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 					h_results_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int), NULL,
-							&error);
+					CL_MEM_ALLOC_HOST_PTR,
+							(nPoints + nPoints * maxResultSize)
+									* sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 
 					h_results = clEnqueueMapBuffer(command_queue, h_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), 0, NULL, NULL,
+							(nPoints + nPoints * maxResultSize)
+									* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
 					d_results = clEnqueueMapBuffer(command_queue, d_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							(nPoints + nPoints*maxResultSize)* sizeof(unsigned int), 0, NULL, NULL,
+							(nPoints + nPoints * maxResultSize)
+									* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
 
 					for (int dim = 0; dim < 3; dim++)
 					{
-						memcpy(h_dimensions[dim],
+						memcpy(&h_dimensions[nPoints*dim],
 								kdtree.getDimensionVector(dim).data(),
 								nPoints * sizeof(float));
-						memcpy(d_dimensions[dim], h_dimensions[dim],
-								nPoints * sizeof(float));
+
 
 					}
+					memcpy(d_dimensions, h_dimensions,
+							3*nPoints * sizeof(float));
 					memcpy(h_ids, kdtree.getIdVector().data(),
 							nPoints * sizeof(unsigned int));
 
 					memcpy(d_ids, h_ids, nPoints * sizeof(unsigned int));
-
 
 					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
 
@@ -458,64 +461,59 @@ int main(int argc, char* argv[])
 
 					//unsigned int* risultati = (unsigned int*) h_results;
 					/*for (int i = 0; i < nPoints; ++i)
-					{
-						std::cout << risultati[i] << std::endl;
+					 {
+					 std::cout << risultati[i] << std::endl;
 
-					}*/
+					 }*/
 
 					const size_t lws = 256;
 					const size_t gws = 32 * lws;
 					std::ifstream ifs("searchInTheBox.cl");
-					std::string source((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-					const char* sources[] = { source.data() };
+					std::string source((std::istreambuf_iterator<char>(ifs)),
+							std::istreambuf_iterator<char>());
+					const char* sources[] =
+					{ source.data() };
 					const size_t source_length = source.length();
 
-					cl_program program = clCreateProgramWithSource(context, 1, sources, &source_length, &error);
+					cl_program program = clCreateProgramWithSource(context, 1,
+							sources, &source_length, &error);
 					checkOclErrors(error);
 
-					checkOclErrors(clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
-				      size_t len;
-				      char *buffer;
-				      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &len);
-				      buffer = (char*)calloc(len, sizeof(char));
-				      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, len, buffer, NULL);
-				      printf("%s\n", buffer);
-					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
+					checkOclErrors(
+							clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
+					size_t len;
+					char *buffer;
+					clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
+							0, NULL, &len);
+					buffer = (char*) calloc(len, sizeof(char));
+					clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
+							len, buffer, NULL);
+					printf("%s\n", buffer);
+					cl_kernel kernel = clCreateKernel(program,
+							"SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
-					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(unsigned int), &nPoints));
-					checkOclErrors(clSetKernelArg(kernel, 1, nPoints*sizeof(float)*3, d_dimensions));
-					checkOclErrors(clSetKernelArg(kernel, 2, nPoints*sizeof(unsigned int), d_ids));
-					checkOclErrors(clSetKernelArg(kernel, 3, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int), d_results));
+					checkOclErrors(
+							clSetKernelArg(kernel, 0, sizeof(unsigned int),
+									&nPoints));
+					checkOclErrors(
+							clSetKernelArg(kernel, 1,
+									nPoints * sizeof(float) * 3, d_dimensions));
+					checkOclErrors(
+							clSetKernelArg(kernel, 2,
+									nPoints * sizeof(unsigned int), d_ids));
+					checkOclErrors(
+							clSetKernelArg(kernel, 3,
+									(nPoints + nPoints * maxResultSize)
+											* sizeof(unsigned int), d_results));
 
 					cl_event kernel_event;
-					checkOclErrors(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
+					checkOclErrors(
+							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
-
-
-
-					memcpy(h_results, d_results, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+					memcpy(h_results, d_results,
+							(nPoints + nPoints * maxResultSize)
+									* sizeof(unsigned int));
 
 					std::cout
 							<< "initialization of buffers using opencl device "
@@ -540,19 +538,18 @@ int main(int argc, char* argv[])
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_ids_mem, d_ids, 0, NULL, NULL));
 					checkOclErrors(error);
-					checkOclErrors(	clEnqueueUnmapMemObject(command_queue, h_ids_mem, h_ids, 0,	NULL, NULL));
-								checkOclErrors(error);
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, h_ids_mem, h_ids, 0, NULL, NULL));
+					checkOclErrors(error);
 					checkOclErrors(clFinish(command_queue));
 
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_results_mem, d_results, 0, NULL, NULL));
 					checkOclErrors(error);
-					checkOclErrors(	clEnqueueUnmapMemObject(command_queue, h_results_mem, h_results, 0,	NULL, NULL));
-								checkOclErrors(error);
+					checkOclErrors(
+							clEnqueueUnmapMemObject(command_queue, h_results_mem, h_results, 0, NULL, NULL));
+					checkOclErrors(error);
 					checkOclErrors(clFinish(command_queue));
-
-
-
 
 					// deallocate pinned h_b
 
