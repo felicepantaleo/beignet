@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <CL/cl.h>
-#include "../cl_helper.h"
+#include "cl_helper.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
