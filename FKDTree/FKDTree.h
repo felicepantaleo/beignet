@@ -38,7 +38,8 @@ public:
 
 	}
 
-	FKDTree(const long int nPoints, const std::vector<KDPoint<TYPE, numberOfDimensions> >& points)
+	FKDTree(const long int nPoints,
+			const std::vector<KDPoint<TYPE, numberOfDimensions> >& points)
 	{
 		theNumberOfPoints = nPoints;
 		theDepth = std::floor(log2(nPoints));
@@ -47,9 +48,8 @@ public:
 			x.resize(theNumberOfPoints);
 		theIntervalLength.resize(theNumberOfPoints, 0);
 		theIntervalMin.resize(theNumberOfPoints, 0);
-		theIds.resize(theNumberOfPoints,0);
-		thePoints=points;
-
+		theIds.resize(theNumberOfPoints, 0);
+		thePoints = points;
 
 	}
 
@@ -128,22 +128,22 @@ public:
 							return a[dimension] < b[dimension];
 						});
 				add_at_position(
-						thePoints[
-								theIntervalMin[indexInArray]
-										+ whichElementInInterval],
-						indexInArray);
+						thePoints[theIntervalMin[indexInArray]
+								+ whichElementInInterval], indexInArray);
 
 				if (leftSonIndexInArray < theNumberOfPoints)
 				{
-					theIntervalMin[leftSonIndexInArray] = theIntervalMin[
-							indexInArray];
+					theIntervalMin[leftSonIndexInArray] =
+							theIntervalMin[indexInArray];
 					theIntervalLength[leftSonIndexInArray] =
 							whichElementInInterval;
 				}
 
 				if (rightSonIndexInArray < theNumberOfPoints)
 				{
-					theIntervalMin[rightSonIndexInArray] = theIntervalMin[indexInArray] + whichElementInInterval + 1;
+					theIntervalMin[rightSonIndexInArray] =
+							theIntervalMin[indexInArray]
+									+ whichElementInInterval + 1;
 					theIntervalLength[rightSonIndexInArray] =
 							(theIntervalLength[indexInArray] - 1
 									- whichElementInInterval);
@@ -179,7 +179,8 @@ public:
 	inline
 	bool intersects(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
-			const KDPoint<TYPE, numberOfDimensions>& maxPoint, int dimension) const
+			const KDPoint<TYPE, numberOfDimensions>& maxPoint,
+			int dimension) const
 	{
 		return (theDimensions[dimension][index] <= maxPoint[dimension]
 				&& theDimensions[dimension][index] >= minPoint[dimension]);
@@ -202,7 +203,7 @@ public:
 
 	std::vector<KDPoint<TYPE, numberOfDimensions> > search_in_the_box(
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
-			const KDPoint<TYPE, numberOfDimensions>& maxPoint)  const
+			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
 		std::deque<unsigned int> indecesToVisit;
 		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
@@ -242,14 +243,12 @@ public:
 					if (indexToAdd < theNumberOfPoints)
 					{
 
-
 //						assert(
 //								indexToAdd >= (1 << (depth + 1)) - 1
 //										&& leftSonIndex(index) + whichSon
 //												< ((1 << (depth + 2)) - 1));
 						indecesToVisit.push_back(indexToAdd);
 					}
-
 
 				}
 
@@ -263,7 +262,7 @@ public:
 		return result;
 	}
 
-	bool test_correct_build(unsigned int index=0, int dimension=0) const
+	bool test_correct_build(unsigned int index = 0, int dimension = 0) const
 	{
 
 		unsigned int leftSonIndexInArray = 2 * index + 1;
@@ -305,6 +304,19 @@ public:
 		}
 
 	}
+
+	std::vector<TYPE> getDimensionVector(const int dimension) const
+	{
+		if(dimension < numberOfDimensions)
+			return theDimensions[dimension];
+	}
+
+	std::vector<unsigned int> getIdVector() const
+	{
+		return theIds;
+	}
+
+
 private:
 
 	unsigned int partition_complete_kdtree(unsigned int length)

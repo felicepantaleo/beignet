@@ -45,15 +45,11 @@ double shrDeltaT()
 #endif
 }
 
+
+
 void bandwidth()
 {
-	const int n = 4;
-	const size_t sizes[n] =
-	{ 3 << 10, 15 << 10, 15 << 20, 100 << 20 };
-	const int iterations[n] =
-	{ 60000, 60000, 300, 30 };
-	printf(
-			"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
+	printf(	"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
 	int g = 0;
 	cl_int error;
 	cl_uint num_platforms;
@@ -180,12 +176,13 @@ static void show_usage(std::string name)
 			<< "\t-c \tRun the vanilla cmssw algo\n"
 			<< "\t-f \tRun FKDtree algo\n"
 			<< "\t-a \tRun all the algos\n"
+			<< "\t-ocl \tRun OpenCL search algo\n"
 			<< std::endl;
 
 }
 int main(int argc, char* argv[])
 {
-	bandwidth();
+
 	if (argc < 3)
 	{
 		show_usage(argv[0]);
@@ -197,6 +194,7 @@ int main(int argc, char* argv[])
 	bool runSequential = false;
 	bool runFKDTree = false;
 	bool runOldKDTree = false;
+	bool runOpenCL = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
@@ -237,6 +235,12 @@ int main(int argc, char* argv[])
 			runOldKDTree = true;
 			runFKDTree = true;
 			runSequential = true;
+		}
+		else if (arg == "-ocl")
+		{
+			runOpenCL = true;
+			runFKDTree = true;
+
 		}
 	}
 
@@ -308,6 +312,158 @@ int main(int argc, char* argv[])
 			else
 				std::cerr << "FKDTree wrong" << std::endl;
 		}
+
+		if(runOpenCL)
+		{
+
+
+
+			printf(	"device,platform name,device name,size (B),memory,access,direction,time (s),bandwidth (MB/s)\n");
+			int g = 0;
+			cl_int error;
+			cl_uint num_platforms;
+			checkOclErrors(clGetPlatformIDs(0, NULL, &num_platforms));
+			cl_platform_id* platforms = (cl_platform_id*) malloc(
+					sizeof(cl_platform_id) * num_platforms);
+			checkOclErrors(clGetPlatformIDs(num_platforms, platforms, NULL));
+			for (cl_uint p = 0; p < 1; ++p)
+			{
+				cl_platform_id platform = platforms[p];
+				char platform_name[256];
+				checkOclErrors(
+						clGetPlatformInfo(platform, CL_PLATFORM_NAME, sizeof(platform_name), platform_name, NULL));
+		//		if (strcmp(platform_name, "NVIDIA CUDA")) continue;
+				cl_uint num_devices;
+				checkOclErrors(
+						clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));
+				cl_device_id* devices = (cl_device_id*) malloc(
+						sizeof(cl_device_id) * num_devices);
+				checkOclErrors(
+						clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices, devices, NULL));
+				for (cl_uint d = 0; d < num_devices; ++d, ++g)
+				{
+					cl_device_id device = devices[d];
+					char device_name[256];
+					checkOclErrors(
+							clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL));
+					cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+					cl_command_queue command_queue = clCreateCommandQueue(context,
+							device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);
+					checkOclErrors(error);
+
+
+
+					cl_mem d_dimensions_mem[3];
+					cl_mem h_dimensions_mem[3];
+
+					float* d_dimensions[3];
+					float* h_dimensions[3];
+
+					unsigned int* d_ids = nullptr;
+					unsigned int* h_ids = nullptr;
+					cl_mem d_ids_mem;
+					cl_mem h_ids_mem;
+					shrDeltaT();
+
+					for(int dim = 0; dim < 3; dim++)
+					{
+
+						//allocating device memory block
+						d_dimensions_mem[dim] = clCreateBuffer(context, CL_MEM_READ_WRITE, nPoints*sizeof(float), NULL,
+													&error);
+						checkOclErrors(error);
+
+						//allocating host memory block
+						h_dimensions_mem[dim] = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+								CL_MEM_ALLOC_HOST_PTR, nPoints*sizeof(float), NULL, &error);
+						checkOclErrors(error);
+
+						h_dimensions[dim] = clEnqueueMapBuffer(command_queue, h_dimensions_mem[dim], CL_TRUE, CL_MAP_READ | CL_MAP_WRITE,
+								0, nPoints*sizeof(float), 0, NULL, NULL, &error);
+						checkOclErrors(error);
+						d_dimensions[dim] = clEnqueueMapBuffer(command_queue, d_dimensions_mem[dim], CL_TRUE,
+								CL_MAP_READ | CL_MAP_WRITE, 0, nPoints*sizeof(float), 0, NULL, NULL,
+								&error);
+						checkOclErrors(error);
+
+					}
+					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE, nPoints*sizeof(unsigned int), NULL,
+							&error);
+					checkOclErrors(error);
+					h_ids_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+							CL_MEM_ALLOC_HOST_PTR, nPoints*sizeof(unsigned int), NULL, &error);
+					checkOclErrors(error);
+
+
+					h_ids = clEnqueueMapBuffer(command_queue, h_ids_mem, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE,
+							0, nPoints*sizeof(unsigned int), 0, NULL, NULL, &error);
+					checkOclErrors(error);
+					d_ids = clEnqueueMapBuffer(command_queue, d_ids_mem, CL_TRUE,
+							CL_MAP_READ | CL_MAP_WRITE, 0, nPoints*sizeof(unsigned int), 0, NULL, NULL,
+							&error);
+					checkOclErrors(error);
+
+					for(int dim = 0; dim < 3; dim++)
+					{
+
+						h_dimensions[dim] =kdtree.getDimensionVector(dim).data();
+						memcpy(d_dimensions[dim], h_dimensions[dim], nPoints*sizeof(float));
+
+
+
+					}
+					h_ids =kdtree.getIdVector().data();
+
+					memcpy(d_ids, h_ids, nPoints*sizeof(unsigned int));
+
+
+					for(int dim = 0; dim < 3; dim++)
+					{
+
+						checkOclErrors(
+								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem[dim], d_dimensions[dim], 0, NULL, NULL));
+						checkOclErrors(error);
+						checkOclErrors(
+								clEnqueueUnmapMemObject(command_queue, h_dimensions_mem[dim], h_dimensions[dim], 0, NULL, NULL));
+						checkOclErrors(error);
+
+					}
+
+					checkOclErrors(clFinish(command_queue));
+					time = shrDeltaT();
+					bandwidth = 0;
+					printf("%d,%s,%s,%lu,%s,%s,%s,%.3f,%.0f\n", g, platform_name,
+							device_name, nPoints*sizeof(float), "pinned", "mapped", "HtoD", time,
+							bandwidth);
+
+					// deallocate pinned h_b
+
+
+					for(int dim = 0; dim < 3; dim++)
+					{
+						checkOclErrors(clReleaseMemObject(d_dimensions_mem[dim]));
+						checkOclErrors(clReleaseMemObject(h_dimensions_mem[dim]));
+
+
+
+					}
+					checkOclErrors(clReleaseMemObject(h_ids));
+					checkOclErrors(clReleaseMemObject(d_ids));
+
+					checkOclErrors(clReleaseCommandQueue(command_queue));
+					checkOclErrors(clReleaseContext(context));
+				}
+				free(devices);
+			}
+			free(platforms);
+
+
+
+
+		}
+
 
 		std::chrono::steady_clock::time_point start_searching =
 				std::chrono::steady_clock::now();
