@@ -465,7 +465,7 @@ int main(int argc, char* argv[])
 					const size_t lws = 256;
 					const size_t gws = 32 * lws;
 					std::ifstream ifs("searchInTheBox.cl");
-					std::string source((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+					std::string source((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 					const char* sources[] = { source.data() };
 					const size_t source_length = source.length();
 
