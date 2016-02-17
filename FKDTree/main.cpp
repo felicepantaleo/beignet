@@ -447,8 +447,8 @@ int main(int argc, char* argv[])
 
 
 					}
-					checkOclErrors(clReleaseMemObject(h_ids));
-					checkOclErrors(clReleaseMemObject(d_ids));
+					checkOclErrors(clReleaseMemObject(h_ids_mem));
+					checkOclErrors(clReleaseMemObject(d_ids_mem));
 
 					checkOclErrors(clReleaseCommandQueue(command_queue));
 					checkOclErrors(clReleaseContext(context));
