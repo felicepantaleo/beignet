@@ -472,7 +472,7 @@ int main(int argc, char* argv[])
 					cl_program program = clCreateProgramWithSource(context, 1, sources, &source_length, &error);
 					checkOclErrors(error);
 
-					checkOclErrors(clBuildProgram(program, 0, NULL, "-cl-fast-relaxed-math", NULL, NULL));
+					checkOclErrors(clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
