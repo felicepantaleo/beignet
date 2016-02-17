@@ -1,4 +1,4 @@
-CC=clang -O2
+CC=g++ -O2
 
 bandwidthTest: bandwidthTest.o
 	$(CC) -o $@ $^ -L${ICD_ROOT}/bin -L${AMDAPPSDKROOT}/lib/x86_64 -L${INTELOCLSDKROOT}/lib/x64 -lOpenCL
