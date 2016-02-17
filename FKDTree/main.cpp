@@ -441,7 +441,8 @@ int main(int argc, char* argv[])
 
 					for (int dim = 0; dim < 3; dim++)
 					{
-						memcpy(&h_dimensions[nPoints*dim],
+						float* dummy_dim = (float*)(h_dimensions);
+						memcpy(&dummy_dim[nPoints*dim],
 								kdtree.getDimensionVector(dim).data(),
 								nPoints * sizeof(float));
 
