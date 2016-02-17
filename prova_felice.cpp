@@ -64,7 +64,6 @@ int main(int argc, char* argv[])
 				checkOclErrors(clEnqueueUnmapMemObject(command_queue, h_b, h_p, 0, NULL, NULL));
 				checkOclErrors(clFinish(command_queue));
 				// --memory=pinned --access=mapped --dtoh
-				shrDeltaT();
 				h_p = clEnqueueMapBuffer(command_queue, h_b, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0, size, 0, NULL, NULL, &error);
 				checkOclErrors(error);
 				d_p = clEnqueueMapBuffer(command_queue, d_b, CL_TRUE, CL_MAP_READ, 0, size, 0, NULL, NULL, &error);
