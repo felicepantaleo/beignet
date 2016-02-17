@@ -483,10 +483,10 @@ int main(int argc, char* argv[])
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
-					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(cl_uint), &nPoints));
-					checkOclErrors(clSetKernelArg(kernel, 1, nPoints*sizeof(cl_float)*3, d_dimensions));
-					checkOclErrors(clSetKernelArg(kernel, 2, nPoints*sizeof(cl_uint), d_ids));
-					checkOclErrors(clSetKernelArg(kernel, 3, (nPoints + nPoints*maxResultSize)* sizeof(cl_uint), d_results));
+					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(unsigned int), &nPoints));
+					checkOclErrors(clSetKernelArg(kernel, 1, nPoints*sizeof(float)*3, d_dimensions));
+					checkOclErrors(clSetKernelArg(kernel, 2, nPoints*sizeof(unsigned int), d_ids));
+					checkOclErrors(clSetKernelArg(kernel, 3, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int), d_results));
 
 					cl_event kernel_event;
 					checkOclErrors(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
