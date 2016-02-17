@@ -523,8 +523,7 @@ int main(int argc, char* argv[])
 							< std::chrono::milliseconds
 							> (end_opencl - start_opencl).count() << "ms"
 									<< std::endl;
-					for (int dim = 0; dim < 3; dim++)
-					{
+
 
 						checkOclErrors(
 								clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
@@ -533,7 +532,7 @@ int main(int argc, char* argv[])
 								clEnqueueUnmapMemObject(command_queue, h_dimensions_mem, h_dimensions, 0, NULL, NULL));
 						checkOclErrors(error);
 
-					}
+
 
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_ids_mem, d_ids, 0, NULL, NULL));
