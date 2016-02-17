@@ -9,6 +9,7 @@
 #include <string.h>
 #include <CL/cl.h>
 #include "cl_helper.h"
+#define __CL_ENABLE_EXCEPTIONS
 #include <fstream>
 
 #include <stdlib.h>
@@ -473,6 +474,9 @@ int main(int argc, char* argv[])
 					checkOclErrors(error);
 
 					checkOclErrors(clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
+				    // Get the build log for the first device
+				    std::string log = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]);
+				    std::cerr << log << std::endl;
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
