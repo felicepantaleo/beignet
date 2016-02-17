@@ -447,7 +447,7 @@ int main(int argc, char* argv[])
 
 					memcpy(d_ids, h_ids, nPoints * sizeof(unsigned int));
 
-					memcpy(d_results, h_ids, nPoints * sizeof(unsigned int));
+
 					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
 
 					std::chrono::steady_clock::time_point end_opencl =
@@ -474,16 +474,18 @@ int main(int argc, char* argv[])
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
-					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(cl_ulong), &n));
-					checkOclErrors(clSetKernelArg(kernel, 1, sizeof(cl_ulong), &baseOffset));
-					checkOclErrors(clSetKernelArg(kernel, 2, sizeof(cl_mem), &accd));
+					checkOclErrors(clSetKernelArg(kernel, 0, sizeof(cl_uint), &nPoints));
+					checkOclErrors(clSetKernelArg(kernel, 1, nPoints*sizeof(cl_float)*3, d_dimensions));
+					checkOclErrors(clSetKernelArg(kernel, 2, nPoints*sizeof(cl_uint), d_ids));
+					checkOclErrors(clSetKernelArg(kernel, 3, (nPoints + nPoints*maxResultSize)* sizeof(cl_uint), d_results));
+
 					cl_event kernel_event;
 					checkOclErrors(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
 
 
 
-
+					memcpy(h_results, d_results, (nPoints + nPoints*maxResultSize)* sizeof(unsigned int));
 
 
 
