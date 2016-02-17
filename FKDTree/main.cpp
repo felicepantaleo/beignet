@@ -474,9 +474,12 @@ int main(int argc, char* argv[])
 					checkOclErrors(error);
 
 					checkOclErrors(clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
-				    // Get the build log for the first device
-				    std::string log = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]);
-				    std::cerr << log << std::endl;
+				      size_t len;
+				      char *buffer;
+				      clGetProgramBuildInfo(program, &devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &len);
+				      buffer = calloc(len);
+				      clGetProgramBuildInfo(program, &devices[0], CL_PROGRAM_BUILD_LOG, len, buffer, NULL);
+				      printf("%s\n", buffer);
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
 
