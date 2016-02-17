@@ -1,10 +1,11 @@
-CC=g++ -O2
+CFLAGS=-std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native 
 
-bandwidthTest: bandwidthTest.o
-	$(CC) -o $@ $^  -lOpenCL
+CC=g++
 
-%.o: %.cpp
-	$(CC) -o $@ $< -c 
+all: kdtree
+
+kdtree: main.cpp
+	$(CC) $(CFLAGS) main.cpp -o kdtree -lOpenCL
 
 clean:
-	rm -f bandwidthTest *.o
+	rm kdtree mem.log*
