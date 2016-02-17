@@ -499,14 +499,13 @@ int main(int argc, char* argv[])
 									&nPoints));
 					checkOclErrors(
 							clSetKernelArg(kernel, 1,
-									nPoints * sizeof(float) * 3, d_dimensions_mem));
+									sizeof(cl_mem), &d_dimensions_mem));
 					checkOclErrors(
 							clSetKernelArg(kernel, 2,
-									nPoints * sizeof(unsigned int), d_ids_mem));
+									sizeof(cl_mem), &d_ids_mem));
 					checkOclErrors(
 							clSetKernelArg(kernel, 3,
-									(nPoints + nPoints * maxResultSize)
-											* sizeof(unsigned int), d_results_mem));
+									sizeof(cl_mem),&d_results_mem));
 
 					cl_event kernel_event;
 					checkOclErrors(
