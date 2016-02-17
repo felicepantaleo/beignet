@@ -476,9 +476,9 @@ int main(int argc, char* argv[])
 					checkOclErrors(clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
 				      size_t len;
 				      char *buffer;
-				      clGetProgramBuildInfo(program, &devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &len);
-				      buffer = calloc(len);
-				      clGetProgramBuildInfo(program, &devices[0], CL_PROGRAM_BUILD_LOG, len, buffer, NULL);
+				      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &len);
+				      buffer = calloc(len, sizeof(char));
+				      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, len, buffer, NULL);
 				      printf("%s\n", buffer);
 					cl_kernel kernel = clCreateKernel(program, "SearchInTheKDBox", &error);
 					checkOclErrors(error);
