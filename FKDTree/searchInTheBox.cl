@@ -1,13 +1,50 @@
+#define MAX_SIZE 15
+
+struct Queue
+{
+	Queue() :
+			front(0), tail(0), size(0)
+	{
+	}
+
+	unsigned int data[MAX_SIZE];
+	unsigned int front;
+	unsigned int tail;
+	unsigned int size;
+};
+bool push_back(Queue* queue, unsigned int index)
+{
+	if (queue->size < MAX_SIZE)
+	{
+		queue->data[queue->tail] = index;
+		queue->tail = (queue->tail + 1) % MAX_SIZE;
+		queue->size++;
+		return true;
+	}
+	return false;
+
+}
+
+unsigned int pop_front(Queue* queue)
+{
+	if(queue->size > 0)
+	{
+		unsigned int element = queue->front;
+		queue->front=(queue->front+1)% MAX_SIZE;
+		queue->size--;
+		return element;
+	}
+}
+
 __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions, __global unsigned int* ids, __global unsigned int* results)
 {
 
-		int threadIdx = get_local_id(0);
-		int blockIdx = get_group_id(0);
-		int point_index = threadIdx + blockIdx * get_local_size(0);
+	unsigned int threadIdx = get_local_id(0);
+	unsigned int blockIdx = get_group_id(0);
+	unsigned int point_index = threadIdx + blockIdx * get_local_size(0);
 
 
-
-
+	Queue indecesToVisit;
 //		std::deque<unsigned int> indecesToVisit;
 //		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 //
@@ -64,18 +101,5 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 //		}
 //		return result;
 //	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
