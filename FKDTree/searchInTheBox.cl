@@ -1,5 +1,13 @@
 __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions, __global unsigned int* ids, __global unsigned int* results)
 {
+
+		int threadIdx = get_local_id(0);
+		int blockIdx = get_group_id(0);
+		int point_index = threadIdx + blockIdx * get_local_size(0);
+
+
+
+
 //		std::deque<unsigned int> indecesToVisit;
 //		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 //
