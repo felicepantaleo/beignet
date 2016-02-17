@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	checkOclErrors(clGetPlatformIDs(0, NULL, &num_platforms));
 	cl_platform_id* platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id) * num_platforms);
 	checkOclErrors(clGetPlatformIDs(num_platforms, platforms, NULL));
-	for (cl_uint p = 0; p < num_platforms; ++p)
+	for (cl_uint p = 0; p < 1; ++p)
 	{
 		cl_platform_id platform = platforms[p];
 		char platform_name[256];
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 		checkOclErrors(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));
 		cl_device_id* devices = (cl_device_id*)malloc(sizeof(cl_device_id) * num_devices);
 		checkOclErrors(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices, devices, NULL));
-		for (cl_uint d = 0; d < num_devices; ++d, ++g)
+		for (cl_uint d = 0; d < 1; ++d, ++g)
 		{
 			cl_device_id device = devices[d];
 			char device_name[256];
