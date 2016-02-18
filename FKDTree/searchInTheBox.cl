@@ -78,9 +78,7 @@ bool isInTheBox(unsigned int index, __global float* theDimensions, unsigned int 
 __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions, __global unsigned int* ids, __global unsigned int* results)
 {
 
-	unsigned int threadIdx = get_local_id(0);
-	unsigned int blockIdx = get_group_id(0);
-	unsigned int point_index = threadIdx + blockIdx * get_local_size(0);
+	unsigned int point_index = get_global_id(0);
 //	float range = 0.1f;
 	if(point_index < nPoints)
 	{
