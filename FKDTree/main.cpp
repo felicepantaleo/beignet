@@ -7,7 +7,7 @@
 #include <thread>
 #include "tbb/tbb.h"
 #include <string.h>
-#include <cl.h>
+//#include <CL/cl.h>
 #include "cl_helper.h"
 #define __CL_ENABLE_EXCEPTIONS
 #include <fstream>
@@ -15,7 +15,7 @@
 
 #include <stdlib.h>
 #include <sys/time.h>
-
+/*
 double shrDeltaT()
 {
 #if defined(_WIN32)
@@ -84,7 +84,7 @@ void bandwidth()
 					&error);
 			checkOclErrors(error);
 			cl_command_queue command_queue = clCreateCommandQueue(context,
-					device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);
+					device, 0/*CL_QUEUE_PROFILING_ENABLE*/, &error);/*
 			checkOclErrors(error);
 
 			const size_t size = 100000 * sizeof(float);
@@ -100,7 +100,7 @@ void bandwidth()
 			checkOclErrors(error);
 
 			// allocate pinned h_b
-			h_b = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
+			h_b = clCreateBuffer(context, /*CL_MEM_READ_WRITE | *//*
 			CL_MEM_ALLOC_HOST_PTR, size, NULL, &error);
 			checkOclErrors(error);
 			// --memory=pinned --access=mapped --htod
@@ -159,7 +159,7 @@ void bandwidth()
 	}
 	free(platforms);
 }
-
+*/
 typedef struct float4
 {
 	float x;
@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
 			else
 				std::cerr << "FKDTree wrong" << std::endl;
 		}
-
+/*
 		if (runOpenCL)
 		{
 
@@ -613,7 +613,7 @@ int main(int argc, char* argv[])
 			}
 			free(platforms);
 
-		}
+		}*/
         
         
         if (runCuda)
