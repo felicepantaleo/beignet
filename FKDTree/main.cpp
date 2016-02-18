@@ -481,7 +481,7 @@ int main(int argc, char* argv[])
 
 					 }*/
 
-					const size_t lws = 64;
+					const size_t lws = 256;
 					const size_t gws = ceil(nPoints/(float)lws)*lws;
 					std::ifstream ifs("searchInTheBox.cl");
 					std::string source((std::istreambuf_iterator<char>(ifs)),
