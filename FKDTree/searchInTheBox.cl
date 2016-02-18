@@ -103,13 +103,16 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		unsigned int pointsFound=0;
 		unsigned int resultIndex = nPoints*(point_index+1);
 		push_back(&indecesToVisit, 0);
-		printf("%d\n",indecesToVisit.size);
 
 		for (int depth = 0; depth < theDepth + 1; ++depth)
 		{
 			int dimension = depth % NUM_DIMENSIONS;
 			unsigned int numberOfIndecesToVisitThisDepth =
 			indecesToVisit.size;
+			if(point_index ==0){
+
+				printf("%d\n",indecesToVisit.size);
+			}
 			for (unsigned int visitedIndecesThisDepth = 0;
 					visitedIndecesThisDepth < numberOfIndecesToVisitThisDepth;
 					visitedIndecesThisDepth++)
