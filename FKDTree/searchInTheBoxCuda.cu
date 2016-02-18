@@ -171,7 +171,7 @@ __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  
     
 }
 
-void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results)
+void CUDAKernelWrapper(unsigned int nPoints,float *d_dim,unsigned int *d_ids,unsigned int *d_results)
 {
 
 
