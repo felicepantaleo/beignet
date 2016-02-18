@@ -15,6 +15,7 @@
 
 #ifdef __USE_CUDA__
 #include "cuda.h"
+#include "cuda_runtime.h"
 #endif
 #include <stdlib.h>
 #include <sys/time.h>
