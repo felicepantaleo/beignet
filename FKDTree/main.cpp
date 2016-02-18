@@ -176,6 +176,7 @@ static void show_usage(std::string name)
 			<< "\t-s \tRun the sequential algo\n"
 			<< "\t-c \tRun the vanilla cmssw algo\n"
 			<< "\t-f \tRun FKDtree algo\n" << "\t-a \tRun all the algos\n"
+			<< "\t-p <number of threads>\tSpecify the number of tbb parallel threads to use\n"
 			<< "\t-ocl \tRun OpenCL search algo\n" << std::endl;
 
 }
@@ -193,6 +194,7 @@ int main(int argc, char* argv[])
 	bool runSequential = false;
 	bool runFKDTree = false;
 	bool runOldKDTree = false;
+	bool runOpenCL = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
@@ -237,6 +239,11 @@ int main(int argc, char* argv[])
 			runOldKDTree = true;
 			runFKDTree = true;
 			runSequential = true;
+		}
+		else if (arg == "-ocl")
+		{
+			runFKDTree = true;
+			runOpenCL = true;
 		}
 		else if (arg == "-p")
 		{
