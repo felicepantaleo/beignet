@@ -83,9 +83,6 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 	if(point_index < nPoints)
 	{
 
-
-		results[point_index] = 0;
-
 		int theDepth = floor(log2((float)nPoints));
 		float minPoint[NUM_DIMENSIONS];
 		float maxPoint[NUM_DIMENSIONS];
@@ -94,14 +91,12 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
 			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
 
-
-
 		}
 
 		Queue indecesToVisit;
 		indecesToVisit.front = indecesToVisit.tail =indecesToVisit.size =0;
 		unsigned int pointsFound=0;
-		unsigned int resultIndex = nPoints*(point_index+1);
+		unsigned int resultIndex = nPoints + MAX_RESULT_SIZE*point_index;
 		push_back(&indecesToVisit, 0);
 
 		for (int depth = 0; depth < theDepth + 1; ++depth)
