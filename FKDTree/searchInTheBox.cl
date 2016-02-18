@@ -110,8 +110,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 					visitedIndecesThisDepth++)
 			{
 
-				unsigned int index = indecesToVisit.data[(indecesToVisit.front+visitedIndecesThisDepth)% MAX_SIZE];
-
+//				unsigned int index = indecesToVisit.data[(indecesToVisit.front+visitedIndecesThisDepth)% MAX_SIZE];
+				unsigned int index = pop_front(&indecesToVisit);
 //				if(point_index == 0)
 //				{
 //					printf("index: %d, dimensions: %f %f %f\n", index, dimensions[index], dimensions[nPoints+index], dimensions[2*nPoints+index]);
@@ -154,7 +154,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 				}
 			}
 
-			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
+//			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
 		}
 
 		results[point_index] = pointsFound;
