@@ -528,7 +528,7 @@ int main(int argc, char* argv[])
 
 					for(int v=0; v< nPoints + nPoints * maxResultSize; v++ )
 					{
-						std::cout << result[v] << std::endl;
+//						std::cout << result[v] << std::endl;
 					}
 					for(int p = 0; p<nPoints; p++)
 					{

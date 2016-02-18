@@ -87,13 +87,14 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		results[point_index] = 0;
 
 		int theDepth = floor(log2((float)nPoints));
-		printf("%d\n",theDepth);
 		float minPoint[NUM_DIMENSIONS];
 		float maxPoint[NUM_DIMENSIONS];
 		for(int i = 0; i<NUM_DIMENSIONS; ++i)
 		{
 			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
 			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
+
+
 
 		}
 
@@ -102,6 +103,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		unsigned int pointsFound=0;
 		unsigned int resultIndex = nPoints*(point_index+1);
 		push_back(&indecesToVisit, 0);
+		printf("%d\n",indecesToVisit.size);
 
 		for (int depth = 0; depth < theDepth + 1; ++depth)
 		{
