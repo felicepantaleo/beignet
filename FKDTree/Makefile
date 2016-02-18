@@ -1,10 +1,11 @@
 CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native 
 
-if [ ! -f /usr/include/CL/cl.h ]; then
-	echo “No OpenCL Installed”
+OPENCL_TEST :=-f /usr/include/CL/cl.h
+ifeq($(!OPENCL_TEST),0)
+	echo “No OpenCL Installed”; 
 else
 	CFLAGS+= DOPENCL
-fi
+endif
 
 
 CC=g++
