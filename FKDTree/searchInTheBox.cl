@@ -1,7 +1,7 @@
 #define MAX_SIZE 64
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 100
-#define RANGE 0.05f;
+#define RANGE 0.5f;
 
 typedef struct
 {
@@ -112,10 +112,10 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 
 				unsigned int index = indecesToVisit.data[(indecesToVisit.front+visitedIndecesThisDepth)% MAX_SIZE];
 
-				if(point_index == 0)
-				{
-					printf("index: %d, dimensions: %f %f %f\n", index, dimensions[index], dimensions[nPoints+index], dimensions[2*nPoints+index]);
-				}
+//				if(point_index == 0)
+//				{
+//					printf("index: %d, dimensions: %f %f %f\n", index, dimensions[index], dimensions[nPoints+index], dimensions[2*nPoints+index]);
+//				}
 
 				bool intersection = intersects(index,dimensions, nPoints, minPoint, maxPoint,
 						dimension);
@@ -124,10 +124,10 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 				{
 					if(pointsFound < MAX_RESULT_SIZE)
 					{
-						if(point_index == 0)
-						{
-							printf("index: %d added to results", index);
-						}
+//						if(point_index == 0)
+//						{
+//							printf("index: %d added to results", index);
+//						}
 
 						results[resultIndex] = index;
 						resultIndex++;

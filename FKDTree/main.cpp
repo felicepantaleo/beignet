@@ -247,9 +247,9 @@ int main(int argc, char* argv[])
 	std::vector<KDPoint<float, 3> > minPoints;
 	std::vector<KDPoint<float, 3> > maxPoints;
 
-	float range_x = 0.05;
-	float range_y = 0.05;
-	float range_z = 0.05;
+	float range_x = 0.5;
+	float range_y = 0.5;
+	float range_z = 0.5;
 
 	KDPoint<float, 3> minPoint(0, 1, 8);
 	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
@@ -526,10 +526,7 @@ int main(int argc, char* argv[])
 					unsigned int* result = (unsigned int*)h_results;
 					unsigned int totalNumberOfPointsFound = 0;
 
-					for(int v=0; v< nPoints + nPoints * maxResultSize; v++ )
-					{
-//						std::cout << result[v] << std::endl;
-					}
+
 					for(int p = 0; p<nPoints; p++)
 					{
 						unsigned int length = result[p];
