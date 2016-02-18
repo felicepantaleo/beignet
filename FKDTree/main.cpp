@@ -11,6 +11,7 @@
 #include "cl_helper.h"
 #define __CL_ENABLE_EXCEPTIONS
 #include <fstream>
+#inclde "cuda.h"
 
 #include <stdlib.h>
 #include <sys/time.h>
@@ -468,7 +469,6 @@ int main(int argc, char* argv[])
 						memcpy(&dummy_dim[nPoints * dim],
 								kdtree.getDimensionVector(dim).data(),
 								nPoints * sizeof(float));
-
 					}
 					memcpy(d_dimensions, h_dimensions,
 							3 * nPoints * sizeof(float));
@@ -568,8 +568,6 @@ int main(int argc, char* argv[])
 //
 //						}
 
-
-
 					}
 					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
@@ -616,6 +614,35 @@ int main(int argc, char* argv[])
 			free(platforms);
 
 		}
+        
+        
+        if (runCuda)
+        {
+            unsigned int* host_ids;
+            float* host_dimensions;
+            unsigned int* host_results;
+            
+            // host allocations
+            host_ids = (unsigned int*)malloc(nPoints * sizeof(unsigned int));
+            host_dimensions = (float*)malloc(3*nPoints * sizeof(float));
+            host_results = (unsigned int*)malloc((nPoints + nPoints * maxResultSize)
+                                           * sizeof(unsigned int));
+            
+            //initialise ids
+            memcpy(host_ids, kdtree.getIdVector().data(),
+                   nPoints * sizeof(unsigned int));
+            
+            //initialise dimensions
+            for (int dim = 0; dim < 3; dim++)
+            {
+                memcpy(&host_dimensions[nPoints * dim],
+                       kdtree.getDimensionVector(dim).data(),
+                       nPoints * sizeof(float));
+            }
+            
+            CUDAKernelWrapper(nPoints,host_dimensions,host_ids,host_results);
+            
+        }
 
 	    tbb::tick_count start_searching =
 	    		tbb::tick_count::now();
