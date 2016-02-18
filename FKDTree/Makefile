@@ -2,7 +2,7 @@ CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=nati
 LIBS = -ltbb
 
 CUDAOBJECT =
-USE_CUDA = NO
+USE_CUDA = YES
 USE_OPENCL = YES
 
 CC=g++
@@ -21,14 +21,12 @@ CUDAFLAGS = -D__USE_CUDA__
 CUDACFLAGS = -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native
 CUDAHEADERS = -I/usr/local/cuda/include
 
-searchInTheBoxCuda.o: searchInTheBoxCuda.cu
-	$(NVCC) $(CUDAHEADERS) -c -XCompiler $(CUDACFLAGS) searchInTheBoxCuda.cu
-
 CUDAOBJECT = searchInTheBoxCuda.o
 
 else
 
-exit 1
+all: 
+	$(error "Unable to provide CUDA support. NVCC not found.")
 
 endif
 endif
@@ -42,6 +40,9 @@ OPENCLHEADERS =
 endif
 
 all: kdtree
+
+searchInTheBoxCuda.o: searchInTheBoxCuda.cu
+	$(NVCC) $(CUDAHEADERS) -c -XCompiler $(CUDACFLAGS) searchInTheBoxCuda.cu
 
 kdtree: $(CUDAOBJECT)
 	$(CC) main.cpp $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS) -o kdtree $(CUDAHEADERS) $(CUDALIBS) $(LIBS) $(OPENCLLIBS) $(CUDAOBJECT)
