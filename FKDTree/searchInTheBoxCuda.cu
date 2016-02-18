@@ -81,7 +81,7 @@ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
 
 
 __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  unsigned int* ids,  unsigned int* results)
-{
+{/*
     
     // Global Thread ID
     unsigned int point_index = blockIdx.x*blockDim.x+threadIdx.x;
@@ -168,7 +168,7 @@ __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  
 		results[point_index] = pointsFound;
 
 	}
-
+*/
 }
 
 void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results)
