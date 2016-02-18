@@ -621,6 +621,8 @@ int main(int argc, char* argv[])
 #endif
     if (runCuda)
         {
+            const size_t maxResultSize = 512;
+            
             unsigned int* host_ids;
             float* host_dimensions;
             unsigned int* host_results;
