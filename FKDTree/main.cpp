@@ -513,7 +513,13 @@ int main(int argc, char* argv[])
                        nPoints * sizeof(float));
             }
             
+            tbb::tick_count start_searching_CUDA =
+            tbb::tick_count::now();
+            
             CUDAKernelWrapper(nPoints,host_dimensions,host_ids,host_results);
+            
+            tbb::tick_count end_searching_CUDA =
+            tbb::tick_count::now();
             
             int totalNumberOfPointsFound = 0;
             
@@ -532,6 +538,9 @@ int main(int argc, char* argv[])
             }
             
             std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
+            
+            std::cout << "searching points using CUDA took "
+            << (end_searching_CUDA - start_searching_CUDA).seconds()*1e3<< "ms\n"<<std::endl;
             
             free(host_ids);
             free(host_dimensions);
