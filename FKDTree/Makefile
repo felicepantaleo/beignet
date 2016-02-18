@@ -2,7 +2,7 @@ CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=nati
 LIBS = -ltbb
 
 CUDAOBJECT =
-USE_CUDA = YES
+USE_CUDA = NO
 USE_OPENCL = YES
 
 CC=g++
@@ -14,7 +14,7 @@ NVCC_TEST := $(notdir $(NVCC_RESULT))
 
 ifeq ($(USE_CUDA),YES)
 
-ifeq ($(NVCC_TEST),nvcc)
+ifeq (!$(NVCC_TEST),nvcc)
 
     CUDALIBS = -lcuda -lcudart -L/usr/local/cuda/lib64
     CUDAFLAGS = -D__USE_CUDA__
