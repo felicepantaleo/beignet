@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+#ifdef __NV_CL_C_VERSION
 double shrDeltaT()
 {
 #if defined(_WIN32)
@@ -161,7 +162,7 @@ void bandwidth()
 	}
 	free(platforms);
 }
-
+#endif
 typedef struct float4
 {
 	float x;
