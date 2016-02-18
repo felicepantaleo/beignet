@@ -127,7 +127,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 
 				}
 
-				bool isLowerThanBoxMin = theDimensions[nPoints*dimension + index]
+				bool isLowerThanBoxMin = dimensions[nPoints*dimension + index]
 				< minPoint[dimension];
 				int startSon = isLowerThanBoxMin; //left son = 0, right son =1
 
