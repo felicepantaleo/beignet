@@ -1,5 +1,4 @@
-#CFLAGS= -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native 
-CFLAGS= -ftree-vectorize -march=native -ffast-math -march=native -mtune=native 
+CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native 
 
 CC=g++
 NVCC=nvcc
