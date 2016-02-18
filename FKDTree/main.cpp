@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
 					cl_mem d_results_mem;
 					cl_mem h_results_mem;
 
-					const size_t maxResultSize = nPoints / 1000;
+					const size_t maxResultSize = 100;
 
 					//allocating device memory block
 					d_dimensions_mem = clCreateBuffer(context,
