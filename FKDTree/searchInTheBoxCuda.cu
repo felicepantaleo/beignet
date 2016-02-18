@@ -157,9 +157,7 @@ __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  
                     if (indexToAdd < nPoints)
                     {
                         push_back(&indecesToVisit,indexToAdd);
-                        
-                        if(indecesToVisit.size == MAX_SIZE)
-                            printf("queue limit hit");
+                    
                     }
                 }
             }
