@@ -58,7 +58,7 @@ unsigned int rightSonIndex(unsigned int index)
 }
 
 
-bool intersects(unsigned int index, __global float* theDimensions, unsigned int nPoints,
+bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint, int dimension)
 {
 	return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
@@ -66,7 +66,7 @@ bool intersects(unsigned int index, __global float* theDimensions, unsigned int 
 }
 
 
-bool isInTheBox(unsigned int index, __global float* theDimensions, unsigned int nPoints,
+bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint)
 {
 	bool inTheBox = true;
@@ -80,7 +80,7 @@ bool isInTheBox(unsigned int index, __global float* theDimensions, unsigned int 
 }
 
 
-__global__ void CUDASearchInTheKDBox(unsigned int nPoints, __global float* dimensions, __global unsigned int* ids, __global unsigned int* results)
+__global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  unsigned int* ids,  unsigned int* results)
 {
     
     // Global Thread ID
