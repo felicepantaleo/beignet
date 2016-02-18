@@ -53,7 +53,7 @@ unsigned int rightSonIndex(unsigned int index)
 }
 
 
-bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
+bool intersects(unsigned int index, __global float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint, int dimension)
 {
 	return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
@@ -61,14 +61,14 @@ bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
 }
 
 
-bool isInTheBox(unsigned int index, float* theDimensions, unsigned int nPoints,
+bool isInTheBox(unsigned int index, __global float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint)
 {
 	bool inTheBox = true;
 	for (int i = 0; i < NUM_DIMENSIONS; ++i)
 	{
 		inTheBox &= (theDimensions[nPoints * i + index] <= maxPoint[i]
-				&& theDimensions[i][index] >= minPoint[i]);
+				&& theDimensions[nPoints * i + index] >= minPoint[i]);
 	}
 
 	return inTheBox;
