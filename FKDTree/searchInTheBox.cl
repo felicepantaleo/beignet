@@ -84,6 +84,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 //	float range = 0.1f;
 	if(point_index < nPoints)
 	{
+
+		printf("ciao");
 		results[point_index] = 0;
 
 		int theDepth = floor(log2((float)nPoints));
