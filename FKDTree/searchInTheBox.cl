@@ -79,7 +79,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 	unsigned int threadIdx = get_local_id(0);
 	unsigned int blockIdx = get_group_id(0);
 	unsigned int point_index = threadIdx + blockIdx * get_local_size(0);
-	float range = 0.1;
+	float range = 0.1f;
 	if(point_index < nPoints)
 	{
 		results[point_index] = 0;
