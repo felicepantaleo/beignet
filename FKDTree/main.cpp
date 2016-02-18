@@ -433,7 +433,7 @@ int main(int argc, char* argv[])
 									* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
-					std::chrono::steady_clock::time_point start_opencl =
+					std::chrono::steady_clock::time_point start_search_opencl =
 							std::chrono::steady_clock::now();
 
 					for (int dim = 0; dim < 3; dim++)
@@ -522,7 +522,7 @@ int main(int argc, char* argv[])
 							<< nPoints << " points took "
 							<< std::chrono::duration_cast
 							< std::chrono::milliseconds
-							> (end_opencl - start_opencl).count() << "ms"
+							> (end_search_opencl - start_search_opencl).count() << "ms"
 									<< std::endl;
 
 					unsigned int* result = (unsigned int*)h_results;
