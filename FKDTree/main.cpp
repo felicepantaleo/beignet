@@ -621,10 +621,9 @@ int main(int argc, char* argv[])
 		tbb::tick_count end_searching =
 				tbb::tick_count::now();
 		std::cout << "searching points using FKDTree took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_searching - start_searching).count() << "ms\n"
-						<< " found points: " << pointsFound
-						<< "\n******************************\n" << std::endl;
+				<< (end_searching - start_searching).seconds()*1e3<< "ms\n"
+				<< " found points: " << pointsFound<< "\n******************************\n"
+						<< std::endl;
 	}
 //	int pointsFoundNaive = 0;
 //
