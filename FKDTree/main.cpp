@@ -5,7 +5,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <thread>
-
+#include "tbb/tbb.h"
 #include <string.h>
 #include <CL/cl.h>
 #include "cl_helper.h"
@@ -181,19 +181,18 @@ static void show_usage(std::string name)
 }
 int main(int argc, char* argv[])
 {
-
 	if (argc < 3)
 	{
 		show_usage(argv[0]);
 		return 1;
 	}
 
-	int nPoints = 100000;
+	int nPoints=100000;
+	int numberOfThreads = 1;
 	bool runTheTests = false;
 	bool runSequential = false;
 	bool runFKDTree = false;
 	bool runOldKDTree = false;
-	bool runOpenCL = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
@@ -210,7 +209,11 @@ int main(int argc, char* argv[])
 				i++;
 				std::istringstream ss(argv[i]);
 				if (!(ss >> nPoints))
+				{
 					std::cerr << "Invalid number " << argv[i] << '\n';
+					exit(1);
+
+				}
 			}
 		}
 		else if (arg == "-t")
@@ -235,13 +238,23 @@ int main(int argc, char* argv[])
 			runFKDTree = true;
 			runSequential = true;
 		}
-		else if (arg == "-ocl")
+		else if (arg == "-p")
 		{
-			runOpenCL = true;
-			runFKDTree = true;
+			if (i + 1 < argc) // Make sure we aren't at the end of argv!
+			{
+				i++;
+				std::istringstream ss(argv[i]);
+				if (!(ss >> numberOfThreads))
+				{
+					std::cerr << "Invalid number of threads " << argv[i] << '\n';
 
+					exit(1);
+
+				}
+			}
 		}
 	}
+    tbb::task_scheduler_init init(numberOfThreads);
 
 	std::vector<KDPoint<float, 3> > points;
 	std::vector<KDPoint<float, 3> > minPoints;
@@ -590,14 +603,16 @@ int main(int argc, char* argv[])
 
 		}
 
-		std::chrono::steady_clock::time_point start_searching =
-				std::chrono::steady_clock::now();
-		for (int i = 0; i < nPoints; ++i)
-			pointsFound +=
-					kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
-		std::chrono::steady_clock::time_point end_searching =
-				std::chrono::steady_clock::now();
+	    tbb::tick_count start_searching =
+	    		tbb::tick_count::now();
+//		for (int i = 0; i < nPoints; ++i)
+//			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
+	    tbb::parallel_for(0, nPoints, 1, [=](int i) {
 
+	    		kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
+	        		});
+		tbb::tick_count end_searching =
+				tbb::tick_count::now();
 		std::cout << "searching points using FKDTree took "
 				<< std::chrono::duration_cast < std::chrono::milliseconds
 				> (end_searching - start_searching).count() << "ms\n"
