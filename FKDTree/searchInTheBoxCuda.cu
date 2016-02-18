@@ -6,7 +6,7 @@
 #include "cuda.h"
 #include <stdlib.h>
 
-__global__ typedef struct
+typedef struct
 {
     
     unsigned int data[MAX_SIZE];
@@ -14,7 +14,8 @@ __global__ typedef struct
     unsigned int tail;
     unsigned int size;
 } Queue;
-__global__ bool push_back(Queue* queue, unsigned int index)
+
+__device__ bool push_back(Queue* queue, unsigned int index)
 {
     if (queue->size < MAX_SIZE)
     {
@@ -27,7 +28,7 @@ __global__ bool push_back(Queue* queue, unsigned int index)
     
 }
 
-__global__ unsigned int pop_front(Queue* queue)
+__device__ unsigned int pop_front(Queue* queue)
 {
     if (queue->size > 0)
     {
@@ -38,7 +39,7 @@ __global__ unsigned int pop_front(Queue* queue)
     }
 }
 
-__global__ void erase_first_n_elements(Queue* queue, unsigned int n)
+__device__ void erase_first_n_elements(Queue* queue, unsigned int n)
 {
     unsigned int elementsToErase = queue->size - n > 0 ? n : queue->size;
     queue->size -=elementsToErase;
@@ -47,19 +48,19 @@ __global__ void erase_first_n_elements(Queue* queue, unsigned int n)
 }
 
 
-__global__ unsigned int leftSonIndex(unsigned int index)
+__device__ unsigned int leftSonIndex(unsigned int index)
 {
     return 2 * index + 1;
 }
 
 
-__global__ unsigned int rightSonIndex(unsigned int index)
+__device__ unsigned int rightSonIndex(unsigned int index)
 {
     return 2 * index + 2;
 }
 
 
-__global__ bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
+__device__ bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
                            float* minPoint, float* maxPoint, int dimension)
 {
     return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
@@ -67,7 +68,7 @@ __global__ bool intersects(unsigned int index,  float* theDimensions, unsigned i
 }
 
 
-__global__ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
+__device__ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
                            float* minPoint, float* maxPoint)
 {
     bool inTheBox = true;
