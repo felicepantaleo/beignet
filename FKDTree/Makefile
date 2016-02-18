@@ -25,8 +25,6 @@ ifeq ($(NVCC_TEST),nvcc)
 		$(NVCC) $(CUDAHEADERS) -c -XCompiler $(CUDACFLAGS) searchInTheBoxCuda.cu
 
     CUDAOBJECT = searchInTheBoxCuda.o
-else
-    echo "NVCC not found"
 
 endif
 
