@@ -11,7 +11,7 @@
 #include "cl_helper.h"
 #define __CL_ENABLE_EXCEPTIONS
 #include <fstream>
-#inclde "cuda.h"
+#include "cuda.h"
 
 #include <stdlib.h>
 #include <sys/time.h>
