@@ -2,7 +2,7 @@ CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=nati
 
 OPENCL_TEST :=-f /usr/include/CL/cl.h
 ifeq($(!OPENCL_TEST),0)
-	echo “No OpenCL Installed”; 
+	@echo “No OpenCL Installed”; 
 else
 	CFLAGS+= DOPENCL
 endif
