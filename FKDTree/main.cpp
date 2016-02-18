@@ -247,9 +247,9 @@ int main(int argc, char* argv[])
 	std::vector<KDPoint<float, 3> > minPoints;
 	std::vector<KDPoint<float, 3> > maxPoints;
 
-	float range_x = 0.5;
-	float range_y = 0.5;
-	float range_z = 0.5;
+	float range_x = 0.9;
+	float range_y = 0.9;
+	float range_z = 0.9;
 
 	KDPoint<float, 3> minPoint(0, 1, 8);
 	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
 					cl_mem d_results_mem;
 					cl_mem h_results_mem;
 
-					const size_t maxResultSize = 100;
+					const size_t maxResultSize = 512;
 
 					//allocating device memory block
 					d_dimensions_mem = clCreateBuffer(context,
@@ -526,22 +526,22 @@ int main(int argc, char* argv[])
 					unsigned int* result = (unsigned int*)h_results;
 					unsigned int totalNumberOfPointsFound = 0;
 
-
-					for(int p = 0; p<nPoints; p++)
-					{
-						unsigned int length = result[p];
-						totalNumberOfPointsFound += length;
-						int firstIndex = nPoints + maxResultSize*p;
-						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
-						for (int r = 0; r< length; ++r)
-						{
-							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
-
-						}
-
-
-
-					}
+//
+//					for(int p = 0; p<nPoints; p++)
+//					{
+//						unsigned int length = result[p];
+//						totalNumberOfPointsFound += length;
+//						int firstIndex = nPoints + maxResultSize*p;
+//						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
+//						for (int r = 0; r< length; ++r)
+//						{
+//							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
+//
+//						}
+//
+//
+//
+//					}
 					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
 

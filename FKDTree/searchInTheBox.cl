@@ -1,7 +1,7 @@
 #define MAX_SIZE 64
 #define NUM_DIMENSIONS 3
-#define MAX_RESULT_SIZE 100
-#define RANGE 0.5f;
+#define MAX_RESULT_SIZE 512
+#define RANGE 0.9f;
 
 typedef struct
 {
@@ -150,6 +150,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 					{
 						push_back(&indecesToVisit,indexToAdd);
 
+						if(indecesToVisit.size == MAX_SIZE)
+							printf("queue limit hit");
 					}
 				}
 			}
