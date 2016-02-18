@@ -1,7 +1,7 @@
 #define MAX_SIZE 128
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 512
-#define RANGE 0.9f;
+#define RANGE 0.2f;
 
 typedef struct
 {
