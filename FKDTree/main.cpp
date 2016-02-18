@@ -11,7 +11,6 @@
 #include <CL/cl.h>
 #include "cl_helper.h"
 #endif
-#define OPENCL
 #include <fstream>
 #include "cuda.h"
 
