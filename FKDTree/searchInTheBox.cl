@@ -90,7 +90,10 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		{
 			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
 			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
+			if(point_index ==0){
 
+				printf("%f %f\n",minPoint[i],maxPoint[i]);
+			}
 		}
 
 		Queue indecesToVisit;
@@ -104,10 +107,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 			int dimension = depth % NUM_DIMENSIONS;
 			unsigned int numberOfIndecesToVisitThisDepth =
 			indecesToVisit.size;
-			if(point_index ==0){
 
-				printf("%d\n",indecesToVisit.size);
-			}
 			for (unsigned int visitedIndecesThisDepth = 0;
 					visitedIndecesThisDepth < numberOfIndecesToVisitThisDepth;
 					visitedIndecesThisDepth++)
