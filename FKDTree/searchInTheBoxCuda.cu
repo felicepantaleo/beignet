@@ -2,7 +2,7 @@
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 512
 #define RANGE 0.2f;
-#define BLOCKSIZE 1024
+#define BLOCKSIZE 256
 #include "cuda.h"
 #include <stdlib.h>
 
