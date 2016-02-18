@@ -28,7 +28,7 @@ unsigned int pop_front(Queue* queue)
 {
 	if (queue->size > 0)
 	{
-		unsigned int element = queue->front;
+		unsigned int element = queue->data[queue->front];
 		queue->front = (queue->front + 1) % MAX_SIZE;
 		queue->size--;
 		return element;
