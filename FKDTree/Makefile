@@ -38,12 +38,12 @@ ifeq ($(USE_OPENCL),YES)
 
 endif
 
-    all: kdtree
+all: kdtree
 
-    kdtree: $(CUDAOBJECT)
-            $(CC) $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS) -o kdtree $(CUDAHEADERS) $(LIBS) $(CUDALIBS) $(OPENCLLIBS) main.cpp searchInTheBoxCuda.o
+kdtree: $(CUDAOBJECT)
+        $(CC) $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS) -o kdtree $(CUDAHEADERS) $(LIBS) $(CUDALIBS) $(OPENCLLIBS) main.cpp searchInTheBoxCuda.o
 
-    clean:  rm -rf *.o kdtree
+clean:  rm -rf *.o kdtree
 
 
 
