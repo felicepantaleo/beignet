@@ -27,7 +27,8 @@ ifeq ($(NVCC_TEST),nvcc)
     CUDAOBJECT = searchInTheBoxCuda.o
 
 endif
-	echo "Unable to provide CUDA support. NVCC missing."
+echo "Unable to provide CUDA support. NVCC missing."
+exit 1
 endif
 
 ###OPENCL TEST
