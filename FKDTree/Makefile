@@ -41,7 +41,7 @@ endif
 all: kdtree
 
 kdtree: $(CUDAOBJECT)
-	$(CC) $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS) -o kdtree $(CUDAHEADERS) $(LIBS) $(CUDALIBS) $(OPENCLLIBS) main.cpp $(CUDAOBJECT)
+	$(CC) main.cpp $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS) -o kdtree $(CUDAHEADERS) $(CUDALIBS) $(LIBS) $(OPENCLLIBS) $(CUDAOBJECT)
 
 clean:
 	rm -rf *.o kdtree
