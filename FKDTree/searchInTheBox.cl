@@ -1,6 +1,5 @@
 #define MAX_SIZE 15
 #define NUM_DIMENSIONS 3
-#define RANGE 0.1
 #define MAX_RESULT_SIZE 100
 typedef struct
 {
@@ -42,20 +41,20 @@ void erase_first_n_elements(Queue* queue, unsigned int n)
 }
 
 
-unsigned int leftSonIndex(unsigned int index) const
+unsigned int leftSonIndex(unsigned int index)
 {
 	return 2 * index + 1;
 }
 
 
-unsigned int rightSonIndex(unsigned int index) const
+unsigned int rightSonIndex(unsigned int index)
 {
 	return 2 * index + 2;
 }
 
 
 bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
-		float* minPoint, float* maxPoint, int dimension) const
+		float* minPoint, float* maxPoint, int dimension)
 {
 	return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
 			&& theDimensions[nPoints * dimension + index] >= minPoint[dimension]);
@@ -63,7 +62,7 @@ bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
 
 
 bool isInTheBox(unsigned int index, float* theDimensions, unsigned int nPoints,
-		float* minPoint, float* maxPoint) const
+		float* minPoint, float* maxPoint)
 {
 	bool inTheBox = true;
 	for (int i = 0; i < NUM_DIMENSIONS; ++i)
@@ -80,7 +79,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 	unsigned int threadIdx = get_local_id(0);
 	unsigned int blockIdx = get_group_id(0);
 	unsigned int point_index = threadIdx + blockIdx * get_local_size(0);
-
+	float range = 0.1;
 	if(point_index < nPoints)
 	{
 		results[point_index] = 0;
@@ -91,8 +90,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		float maxPoint[NUM_DIMENSIONS];
 		for(int i = 0; i<NUM_DIMENSIONS; ++i)
 		{
-			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
-			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
+			minPoint[i] = dimensions[nPoints*i+point_index] - range;
+			maxPoint[i] = dimensions[nPoints*i+point_index] + range;
 
 		}
 
