@@ -155,7 +155,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
 		}
 
-		results[pointIndex] = pointsFound;
+		results[point_index] = pointsFound;
 
 	}
 
