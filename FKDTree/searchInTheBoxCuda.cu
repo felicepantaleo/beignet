@@ -177,29 +177,29 @@ void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,uns
 {
     
     // Device vectors
-    float *d_dim;
+    float *d_dim = 0;
     unsigned int *d_ids;
-    unsigned int *d_results
+    unsigned int *d_results;
 
     // Allocate device memory
     cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
     cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
-    cudaMalloc(&d_results, (nPoints + nPoints * maxResultSize)
+    cudaMalloc(&d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
                * sizeof(unsigned int));
     
     // Copy host vectors to device
     cudaMemcpy( d_dim, h_dim, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy( d_ids, h_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy( d_results, h_results, (nPoints + nPoints * maxResultSize)
+    cudaMemcpy( d_results, h_results, (nPoints + nPoints * MAX_RESULT_SIZE)
                * sizeof(unsigned int), cudaMemcpyHostToDevice);
 
     // Number of thread blocks
-    unsigned int gridSize = (int)ceil((float)n/BLOCKSIZE);
+    unsigned int gridSize = (int)ceil((float)nPoints/BLOCKSIZE);
     
     CUDASearchInTheKDBox<<<gridSize, BLOCKSIZE>>>(nPoints, d_dim, d_ids,d_results);
     
     // Back to host
-    cudaMemcpy( h_results, d_results, (nPoints + nPoints * maxResultSize)
+    cudaMemcpy( h_results, d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
                * sizeof(unsigned int), cudaMemcpyDeviceToHost );
     
     
@@ -207,8 +207,6 @@ void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,uns
     cudaFree(d_dim);
     cudaFree(d_ids);
     cudaFree(d_results);
-
-    return 0;
     
 }
 
