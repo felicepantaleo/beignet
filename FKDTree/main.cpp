@@ -24,6 +24,7 @@
 void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results);
 #endif
 
+#ifndef __USE_CUDA__
 typedef struct float4
 {
 	float x;
@@ -31,6 +32,7 @@ typedef struct float4
 	float z;
 	float w;
 } float4;
+#endif
 
 static void show_usage(std::string name)
 {
@@ -522,13 +524,13 @@ int main(int argc, char* argv[])
             // Allocate device memory
             cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
             cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
-            cudaMalloc(&d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+            cudaMalloc(&d_results, (nPoints + nPoints * maxResultSize)
                        * sizeof(unsigned int));
             
             // Copy host vectors to device
             cudaMemcpy( d_dim, host_dimensions, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
             cudaMemcpy( d_ids, host_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
-            //cudaMemcpy( d_results, host_results, (nPoints + nPoints * MAX_RESULT_SIZE)* sizeof(unsigned int), cudaMemcpyHostToDevice);
+            //cudaMemcpy( d_results, host_results, (nPoints + nPoints * maxResultSize)* sizeof(unsigned int), cudaMemcpyHostToDevice);
             
             
             tbb::tick_count start_searching_CUDA =
@@ -540,7 +542,7 @@ int main(int argc, char* argv[])
             tbb::tick_count::now();
             
             // Back to host
-            cudaMemcpy( host_results, d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+            cudaMemcpy( host_results, d_results, (nPoints + nPoints * maxResultSize)
                        * sizeof(unsigned int), cudaMemcpyDeviceToHost );
             
             // Release device memory
