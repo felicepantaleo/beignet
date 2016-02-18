@@ -17,6 +17,8 @@ ifeq ($(NVCC_TEST),nvcc)
 
 	clean: rm -rf *o kdtree
 else
+    all: kdtree
+
 	kdtree: main.cpp
 		$(CC) $(CFLAGS) main.cpp -o kdtree -lOpenCL -ltbb
 
