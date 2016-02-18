@@ -1,26 +1,51 @@
-CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native 
+CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native
+LIBS = -ltbb
+
+CUDAOBJECT =
+USE_CUDA = YES
+USE_OPENCL = YES
 
 CC=g++
-NVCC=nvcc
 
-        NVCC_RESULT := $(shell which nvcc 2> NULL)
-        NVCC_TEST := $(notdir $(NVCC_RESULT))
+###CUDA TEST
+NVCC_RESULT := $(shell which nvcc 2> NULL)
+NVCC_TEST := $(notdir $(NVCC_RESULT))
+
+
+ifeq ($(USE_CUDA),YES)
+
 ifeq ($(NVCC_TEST),nvcc)
-	
-	all: kdtree
 
-	searchInTheBoxCuda.o:
-		$(NVCC) -I/usr/local/cuda/include -L/usr/local/cuda/lib64 -lcuda -lcudart -c -arch=sm_20 searchInTheBoxCuda.cu
+    CUDALIBS = -lcuda -lcudart -L/usr/local/cuda/lib64
+    CUDAFLAGS = -D__USE_CUDA__
+    CUDACFLAGS = -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native
+    CUDAHEADERS = -I/usr/local/cuda/include
 
-	kdtree: searchInTheBoxCuda.o
-		$(CC) $(CFLAGS) -o kdtree -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcuda -lcudart -lOpenCL -ltbb main.cpp 	searchInTheBoxCuda.o
+	searchInTheBoxCuda.o: searchInTheBoxCuda.cu
+		$(NVCC) $(CUDAHEADERS) -c -XCompiler $(CUDACFLAGS) searchInTheBoxCuda.cu
 
-	clean: rm -rf *o kdtree
+    CUDAOBJECT = searchInTheBoxCuda.o
 else
+    @echo "NVCC not found"
+
+endif
+
+endif
+
+###OPENCL TEST
+ifeq ($(USE_OPENCL),YES)
+    OPENCLLIBS = -lOpenCL
+    OPENCLFLAGS = -D__USE_OPENCL__
+    OPENCLHEADERS =
+
+endif
+
     all: kdtree
 
-	kdtree: main.cpp
-		$(CC) $(CFLAGS) main.cpp -o kdtree -lOpenCL -ltbb
+    kdtree: $(CUDAOBJECT)
+    $(CC) $(CFLAGS) $(CUDAFLAGS) $(OPENCLFLAGS)  -o kdtree $(CUDAHEADERS) $(LIBS) $(CUDALIBS) $(OPENCLLIBS) main.cpp 	searchInTheBoxCuda.o
 
-	clean:
-		rm kdtree mem.log*
+    clean: rm -rf *.o kdtree
+
+
+
