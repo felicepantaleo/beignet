@@ -38,6 +38,7 @@ unsigned int pop_front(Queue* queue)
 void erase_first_n_elements(Queue* queue, unsigned int n)
 {
 	unsigned int elementsToErase = queue->size - n > 0 ? n : queue->size;
+	queue->size -=elementsToErase;
 	queue->front = (queue->front + elementsToErase) % MAX_SIZE;
 
 }
@@ -153,7 +154,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 				}
 			}
 
-			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth+1 );
+			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
 		}
 
 		results[point_index] = pointsFound;
