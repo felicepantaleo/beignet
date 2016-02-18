@@ -551,7 +551,7 @@ int main(int argc, char* argv[])
             cudaFree(d_results);
             
             int totalNumberOfPointsFound = 0;
-            
+            /*
             for(int p = 0; p<nPoints; p++)
             {
                 unsigned int length = host_results[p];
@@ -564,7 +564,7 @@ int main(int argc, char* argv[])
                 
                 						}
                 
-            }
+            }*/
             
             std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
             
