@@ -25,10 +25,9 @@ ifeq ($(NVCC_TEST),nvcc)
 		$(NVCC) $(CUDAHEADERS) -c -XCompiler $(CUDACFLAGS) searchInTheBoxCuda.cu
 
     CUDAOBJECT = searchInTheBoxCuda.o
-
+else
+	$(error Unable to provide CUDA support. NVCC missing.)
 endif
-echo "Unable to provide CUDA support. NVCC missing."
-exit 1
 endif
 
 ###OPENCL TEST
