@@ -26,7 +26,8 @@ ifeq ($(NVCC_TEST),nvcc)
 
     CUDAOBJECT = searchInTheBoxCuda.o
 else
-	$(error Unable to provide CUDA support. NVCC missing.)
+	all:
+		$(error Unable to provide CUDA support. NVCC missing.)
 endif
 endif
 
