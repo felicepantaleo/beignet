@@ -5,7 +5,7 @@
 #include "cuda.h"
 #include <stdlib.h>
 
-typedef struct
+__global__ typedef struct
 {
 
 	unsigned int data[MAX_SIZE];
@@ -13,7 +13,7 @@ typedef struct
 	unsigned int tail;
 	unsigned int size;
 } Queue;
-bool push_back(Queue* queue, unsigned int index)
+__global__ bool push_back(Queue* queue, unsigned int index)
 {
 	if (queue->size < MAX_SIZE)
 	{
@@ -26,7 +26,7 @@ bool push_back(Queue* queue, unsigned int index)
 
 }
 
-unsigned int pop_front(Queue* queue)
+__global__ unsigned int pop_front(Queue* queue)
 {
 	if (queue->size > 0)
 	{
@@ -37,7 +37,7 @@ unsigned int pop_front(Queue* queue)
 	}
 }
 
-void erase_first_n_elements(Queue* queue, unsigned int n)
+__global__ void erase_first_n_elements(Queue* queue, unsigned int n)
 {
 	unsigned int elementsToErase = queue->size - n > 0 ? n : queue->size;
 	queue->size -=elementsToErase;
@@ -46,19 +46,19 @@ void erase_first_n_elements(Queue* queue, unsigned int n)
 }
 
 
-unsigned int leftSonIndex(unsigned int index)
+__global__ unsigned int leftSonIndex(unsigned int index)
 {
 	return 2 * index + 1;
 }
 
 
-unsigned int rightSonIndex(unsigned int index)
+__global__ unsigned int rightSonIndex(unsigned int index)
 {
 	return 2 * index + 2;
 }
 
 
-bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
+__global__ bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint, int dimension)
 {
 	return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
@@ -66,7 +66,7 @@ bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
 }
 
 
-bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
+__global__ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint)
 {
 	bool inTheBox = true;
@@ -81,7 +81,7 @@ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
 
 
 __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  unsigned int* ids,  unsigned int* results)
-{/*
+{
     
     // Global Thread ID
     unsigned int point_index = blockIdx.x*blockDim.x+threadIdx.x;
@@ -168,7 +168,7 @@ __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  
 		results[point_index] = pointsFound;
 
 	}
-*/
+
 }
 
 void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results)
