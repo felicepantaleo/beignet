@@ -196,6 +196,7 @@ int main(int argc, char* argv[])
 	bool runFKDTree = false;
 	bool runOldKDTree = false;
 	bool runOpenCL = false;
+    bool runCuda = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
@@ -261,6 +262,11 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
+        else if (arg == "-cuda")
+        {
+            runFKDTree = true;
+            runCuda = true;
+        }
 	}
     tbb::task_scheduler_init init(numberOfThreads);
 
