@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-extern "C" void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results);
+void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results);
 
 #ifdef OPENCL
 double shrDeltaT()
