@@ -1,687 +1,210 @@
-#include "FKDTree.h"
-#include "KDPoint.h"
-#include <chrono>
-#include "KDTreeLinkerAlgoT.h"
-#include <sstream>
-#include <unistd.h>
-#include <thread>
-#include "tbb/tbb.h"
-#include <string.h>
-#ifdef __USE_OPENCL__
-#include <fstream>
-#include <CL/cl.h>
-#include "cl_helper.h"
-#endif
-
-#ifdef __USE_CUDA__
+#define MAX_SIZE 128
+#define NUM_DIMENSIONS 3
+#define MAX_RESULT_SIZE 512
+#define RANGE 0.2f;
+#define BLOCKSIZE 1024
 #include "cuda.h"
-#endif
 #include <stdlib.h>
-#include <sys/time.h>
 
-#ifdef __USE_CUDA__
-void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results);
-#endif
-
-typedef struct float4
+typedef struct
 {
-	float x;
-	float y;
-	float z;
-	float w;
-} float4;
+    
+    unsigned int data[MAX_SIZE];
+    unsigned int front;
+    unsigned int tail;
+    unsigned int size;
+} Queue;
 
-static void show_usage(std::string name)
+__device__ bool push_back(Queue* queue, unsigned int index)
 {
-	std::cerr << "\nUsage: " << name << " <option(s)>" << " Options:\n"
-			<< "\t-h,--help\t\tShow this help message\n"
-			<< "\t-n <number of points>\tSpecify the number of points to use for the kdtree\n"
-			<< "\t-t \tRun the validity tests\n"
-			<< "\t-s \tRun the sequential algo\n"
-			<< "\t-c \tRun the vanilla cmssw algo\n"
-			<< "\t-f \tRun FKDtree algo\n" << "\t-a \tRun all the algos\n"
-			<< "\t-p <number of threads>\tSpecify the number of tbb parallel threads to use\n"
-#ifdef __USE_OPENCL__
-			<< "\t-ocl \tRun OpenCL search algo\n"
-#endif
-#ifdef __USE_CUDA__
-            << "\t-cuda \tRunr CUDA search algo\n"
-#endif
-            <<std::endl;
-
-
+    if (queue->size < MAX_SIZE)
+    {
+        queue->data[queue->tail] = index;
+        queue->tail = (queue->tail + 1) % MAX_SIZE;
+        queue->size++;
+        return true;
+    }
+    return false;
+    
 }
-int main(int argc, char* argv[])
+
+__device__ unsigned int pop_front(Queue* queue)
 {
-	if (argc < 3)
-	{
-		show_usage(argv[0]);
-		return 1;
-	}
+    if (queue->size > 0)
+    {
+        unsigned int element = queue->data[queue->front];
+        queue->front = (queue->front + 1) % MAX_SIZE;
+        queue->size--;
+        return element;
+    }
+}
 
-	int nPoints=100000;
-	int numberOfThreads = 1;
-	bool runTheTests = false;
-	bool runSequential = false;
-	bool runFKDTree = false;
-	bool runOldKDTree = false;
-	bool runOpenCL = false;
-    bool runCuda = false;
-	for (int i = 1; i < argc; ++i)
-	{
-		std::string arg = argv[i];
-		if ((arg == "-h") || (arg == "--help"))
-		{
-			show_usage(argv[0]);
-			return 0;
-		}
+__device__ void erase_first_n_elements(Queue* queue, unsigned int n)
+{
+    unsigned int elementsToErase = queue->size - n > 0 ? n : queue->size;
+    queue->size -=elementsToErase;
+    queue->front = (queue->front + elementsToErase) % MAX_SIZE;
+    
+}
 
-		else if (arg == "-n")
-		{
-			if (i + 1 < argc) // Make sure we aren't at the end of argv!
-			{
-				i++;
-				std::istringstream ss(argv[i]);
-				if (!(ss >> nPoints))
-				{
-					std::cerr << "Invalid number " << argv[i] << '\n';
-					exit(1);
 
-				}
-			}
-		}
-		else if (arg == "-t")
-		{
-			runTheTests = true;
-		}
-		else if (arg == "-s")
-		{
-			runSequential = true;
-		}
-		else if (arg == "-f")
-		{
-			runFKDTree = true;
-		}
-		else if (arg == "-c")
-		{
-			runOldKDTree = true;
-		}
-		else if (arg == "-a")
-		{
-			runOldKDTree = true;
-			runFKDTree = true;
-			runSequential = true;
-		}
-#ifdef __USE_OPENCL__
-		else if (arg == "-ocl")
-		{
-			runFKDTree = true;
-			runOpenCL = true;
-		}
-#endif
-		else if (arg == "-p")
-		{
-			if (i + 1 < argc) // Make sure we aren't at the end of argv!
-			{
-				i++;
-				std::istringstream ss(argv[i]);
-				if (!(ss >> numberOfThreads))
-				{
-					std::cerr << "Invalid number of threads " << argv[i] << '\n';
+__device__ unsigned int leftSonIndex(unsigned int index)
+{
+    return 2 * index + 1;
+}
 
-					exit(1);
 
-				}
-			}
-		}
-        else if (arg == "-cuda")
-        {
-            runFKDTree = true;
-            runCuda = true;
-        }
-	}
-    tbb::task_scheduler_init init(numberOfThreads);
+__device__ unsigned int rightSonIndex(unsigned int index)
+{
+    return 2 * index + 2;
+}
 
-	std::vector<KDPoint<float, 3> > points;
-	std::vector<KDPoint<float, 3> > minPoints;
-	std::vector<KDPoint<float, 3> > maxPoints;
 
-	float range_x = 0.2;
-	float range_y = 0.2;
-	float range_z = 0.2;
+__device__ bool intersects(unsigned int index,  float* theDimensions, unsigned int nPoints,
+                           float* minPoint, float* maxPoint, int dimension)
+{
+    return (theDimensions[nPoints * dimension + index] <= maxPoint[dimension]
+            && theDimensions[nPoints * dimension + index] >= minPoint[dimension]);
+}
 
-	KDPoint<float, 3> minPoint(0, 1, 8);
-	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
-	for (int i = 0; i < nPoints; ++i)
-	{
-		float x = static_cast<float>(rand())
-				/ (static_cast<float>(RAND_MAX / 10.1));
-		;
-		float y = static_cast<float>(rand())
-				/ (static_cast<float>(RAND_MAX / 10.1));
-		;
-		float z = static_cast<float>(rand())
-				/ (static_cast<float>(RAND_MAX / 10.1));
-		KDPoint<float, 3> Point(x, y, z);
-		Point.setId(i);
 
-		points.push_back(Point);
-		KDPoint<float, 3> m(x - range_x, y - range_y, z - range_z);
-		minPoints.push_back(m);
-		KDPoint<float, 3> M(x + range_x, y + range_y, z + range_z);
-		maxPoints.push_back(M);
+__device__ bool isInTheBox(unsigned int index,  float* theDimensions, unsigned int nPoints,
+                           float* minPoint, float* maxPoint)
+{
+    bool inTheBox = true;
+    for (int i = 0; i < NUM_DIMENSIONS; ++i)
+    {
+        inTheBox &= (theDimensions[nPoints * i + index] <= maxPoint[i]
+                     && theDimensions[nPoints * i + index] >= minPoint[i]);
+    }
+    
+    return inTheBox;
+}
 
-	}
-//needed by the vanilla algo
-	float4* cmssw_points;
-	cmssw_points = new float4[nPoints];
-	for (int j = 0; j < nPoints; j++)
-	{
-		cmssw_points[j].x = points[j][0];
-		cmssw_points[j].y = points[j][1];
-		cmssw_points[j].z = points[j][2];
-		cmssw_points[j].w = j; //Use this to save the index
 
-	}
-
-	std::cout << "Cloud of points generated.\n" << std::endl;
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	if (runFKDTree)
-	{
-		long int pointsFound = 0;
-		std::cout << "FKDTree run will start in 1 second.\n" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
-		std::chrono::steady_clock::time_point start_building =
-				std::chrono::steady_clock::now();
-		FKDTree<float, 3> kdtree(nPoints, points);
-
-		kdtree.build();
-		std::chrono::steady_clock::time_point end_building =
-				std::chrono::steady_clock::now();
-		std::cout << "building FKDTree with " << nPoints << " points took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_building - start_building).count() << "ms" << std::endl;
-		if (runTheTests)
-		{
-			if (kdtree.test_correct_build())
-				std::cout << "FKDTree built correctly" << std::endl;
-			else
-				std::cerr << "FKDTree wrong" << std::endl;
-		}
+__global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  unsigned int* ids,  unsigned int* results)
+{
+    
+    // Global Thread ID
+    unsigned int point_index = blockIdx.x*blockDim.x+threadIdx.x;
+    
+    //	float range = 0.1f;
+    if(point_index < nPoints)
+    {
         
-#ifdef __USE_OPENCL__
-		if (runOpenCL)
-		{
-			int g = 0;
-			cl_int error;
-			cl_uint num_platforms;
-			checkOclErrors(clGetPlatformIDs(0, NULL, &num_platforms));
-			cl_platform_id* platforms = (cl_platform_id*) malloc(
-					sizeof(cl_platform_id) * num_platforms);
-			checkOclErrors(clGetPlatformIDs(num_platforms, platforms, NULL));
-			for (cl_uint p = 0; p < 1; ++p)
-			{
-				cl_platform_id platform = platforms[p];
-				char platform_name[256];
-				checkOclErrors(
-						clGetPlatformInfo(platform, CL_PLATFORM_NAME, sizeof(platform_name), platform_name, NULL));
-				//		if (strcmp(platform_name, "NVIDIA CUDA")) continue;
-				cl_uint num_devices;
-				checkOclErrors(
-						clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));
-				cl_device_id* devices = (cl_device_id*) malloc(
-						sizeof(cl_device_id) * num_devices);
-				checkOclErrors(
-						clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices, devices, NULL));
-				for (cl_uint d = 0; d < num_devices; ++d, ++g)
-				{
-					cl_device_id device = devices[d];
-					char device_name[256];
-					checkOclErrors(
-							clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL));
-					cl_context context = clCreateContext(NULL, 1, &device, NULL,
-					NULL, &error);
-					checkOclErrors(error);
-					cl_command_queue command_queue = clCreateCommandQueue(
-							context, device, 0/*CL_QUEUE_PROFILING_ENABLE*/,
-							&error);
-					checkOclErrors(error);
-
-
-					cl_mem d_dimensions_mem;
-					cl_mem h_dimensions_mem;
-
-					void* d_dimensions;
-					void* h_dimensions;
-
-					void* d_ids = nullptr;
-					void* h_ids = nullptr;
-					cl_mem d_ids_mem;
-					cl_mem h_ids_mem;
-
-					void* d_results;
-					void* h_results;
-					cl_mem d_results_mem;
-					cl_mem h_results_mem;
-
-					const size_t maxResultSize = 512;
-
-					//allocating device memory block
-					d_dimensions_mem = clCreateBuffer(context,
-							CL_MEM_READ_WRITE, 3 * nPoints * sizeof(float),
-							NULL, &error);
-					checkOclErrors(error);
-
-					//allocating host memory block
-					h_dimensions_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, 3 * nPoints * sizeof(float), NULL,
-							&error);
-					checkOclErrors(error);
-
-					h_dimensions = clEnqueueMapBuffer(command_queue,
-							h_dimensions_mem, CL_TRUE,
-							CL_MAP_READ | CL_MAP_WRITE, 0,
-							3 * nPoints * sizeof(float), 0, NULL, NULL, &error);
-					checkOclErrors(error);
-					d_dimensions = clEnqueueMapBuffer(command_queue,
-							d_dimensions_mem, CL_TRUE,
-							CL_MAP_READ | CL_MAP_WRITE, 0,
-							3 * nPoints * sizeof(float), 0, NULL, NULL, &error);
-					checkOclErrors(error);
-
-					d_ids_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-							nPoints * sizeof(unsigned int), NULL, &error);
-					checkOclErrors(error);
-					h_ids_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
-							&error);
-					checkOclErrors(error);
-
-					h_ids = clEnqueueMapBuffer(command_queue, h_ids_mem,
-							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							nPoints * sizeof(unsigned int), 0, NULL, NULL,
-							&error);
-					checkOclErrors(error);
-					d_ids = clEnqueueMapBuffer(command_queue, d_ids_mem,
-							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							nPoints * sizeof(unsigned int), 0, NULL, NULL,
-							&error);
-					checkOclErrors(error);
-
-					d_results_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), NULL, &error);
-					checkOclErrors(error);
-					h_results_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR,
-							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), NULL, &error);
-					checkOclErrors(error);
-
-					h_results = clEnqueueMapBuffer(command_queue, h_results_mem,
-							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), 0, NULL, NULL,
-							&error);
-					checkOclErrors(error);
-					d_results = clEnqueueMapBuffer(command_queue, d_results_mem,
-							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
-							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), 0, NULL, NULL,
-							&error);
-					checkOclErrors(error);
-
-
-					for (int dim = 0; dim < 3; dim++)
-					{
-						float* dummy_dim = (float*) (h_dimensions);
-						memcpy(&dummy_dim[nPoints * dim],
-								kdtree.getDimensionVector(dim).data(),
-								nPoints * sizeof(float));
-					}
-					memcpy(d_dimensions, h_dimensions,
-							3 * nPoints * sizeof(float));
-					memcpy(h_ids, kdtree.getIdVector().data(),
-							nPoints * sizeof(unsigned int));
-
-					memcpy(d_ids, h_ids, nPoints * sizeof(unsigned int));
-
-					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
-
-
-
-					//unsigned int* risultati = (unsigned int*) h_results;
-					/*for (int i = 0; i < nPoints; ++i)
-					 {
-					 std::cout << risultati[i] << std::endl;
-
-					 }*/
-
-					const size_t lws = 256;
-					const size_t gws = ceil(nPoints/(float)lws)*lws;
-					std::ifstream ifs("searchInTheBox.cl");
-					std::string source((std::istreambuf_iterator<char>(ifs)),
-							std::istreambuf_iterator<char>());
-					const char* sources[] =
-					{ source.data() };
-					const size_t source_length = source.length();
-
-					cl_program program = clCreateProgramWithSource(context, 1,
-							sources, &source_length, &error);
-					checkOclErrors(error);
-
-					checkOclErrors(
-							clBuildProgram(program, 0, NULL, NULL, NULL, NULL));
-					size_t len;
-					char *buffer;
-					clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
-							0, NULL, &len);
-					buffer = (char*) calloc(len, sizeof(char));
-					clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
-							len, buffer, NULL);
-					printf("%s\n", buffer);
-					cl_kernel kernel = clCreateKernel(program,
-							"SearchInTheKDBox", &error);
-					checkOclErrors(error);
-
-					checkOclErrors(
-							clSetKernelArg(kernel, 0, sizeof(unsigned int),
-									&nPoints));
-					checkOclErrors(
-							clSetKernelArg(kernel, 1, sizeof(cl_mem),
-									&d_dimensions_mem));
-					checkOclErrors(
-							clSetKernelArg(kernel, 2, sizeof(cl_mem),
-									&d_ids_mem));
-					checkOclErrors(
-							clSetKernelArg(kernel, 3, sizeof(cl_mem),
-									&d_results_mem));
-
-					cl_event kernel_event;
-
-					std::chrono::steady_clock::time_point start_search_opencl =
-							std::chrono::steady_clock::now();
-					checkOclErrors(
-							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
-
-
-					memcpy(h_results, d_results,
-							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int));
-
-
-					std::chrono::steady_clock::time_point end_search_opencl =
-							std::chrono::steady_clock::now();
-					std::cout
-							<< "research using opencl device "
-							<< platform_name << " " << device_name << " for "
-							<< nPoints << " points took "
-							<< std::chrono::duration_cast
-							< std::chrono::milliseconds
-							> (end_search_opencl - start_search_opencl).count() << "ms"
-									<< std::endl;
-
-					unsigned int* result = (unsigned int*)h_results;
-					unsigned int totalNumberOfPointsFound = 0;
-
-//
-					for(int p = 0; p<nPoints; p++)
-					{
-						unsigned int length = result[p];
-						totalNumberOfPointsFound += length;
-						int firstIndex = nPoints + maxResultSize*p;
-//						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
-//						for (int r = 0; r< length; ++r)
-//						{
-//							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
-//
-//						}
-
-					}
-					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
-
-
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
-					checkOclErrors(error);
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, h_dimensions_mem, h_dimensions, 0, NULL, NULL));
-					checkOclErrors(error);
-
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, d_ids_mem, d_ids, 0, NULL, NULL));
-					checkOclErrors(error);
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, h_ids_mem, h_ids, 0, NULL, NULL));
-					checkOclErrors(error);
-					checkOclErrors(clFinish(command_queue));
-
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, d_results_mem, d_results, 0, NULL, NULL));
-					checkOclErrors(error);
-					checkOclErrors(
-							clEnqueueUnmapMemObject(command_queue, h_results_mem, h_results, 0, NULL, NULL));
-					checkOclErrors(error);
-					checkOclErrors(clFinish(command_queue));
-
-					// deallocate pinned h_b
-
-					checkOclErrors(clReleaseMemObject(d_dimensions_mem));
-					checkOclErrors(clReleaseMemObject(h_dimensions_mem));
-
-					checkOclErrors(clReleaseMemObject(h_ids_mem));
-					checkOclErrors(clReleaseMemObject(d_ids_mem));
-
-					checkOclErrors(clReleaseCommandQueue(command_queue));
-
-					checkOclErrors(clReleaseKernel(kernel));
-					checkOclErrors(clReleaseProgram(program));
-					checkOclErrors(clReleaseContext(context));
-				}
-				free(devices);
-			}
-			free(platforms);
-
-		}
-#endif
-#ifdef __USE_CUDA__
-    if (runCuda)
+        int theDepth = floor(log2((float)nPoints));
+        float minPoint[NUM_DIMENSIONS];
+        float maxPoint[NUM_DIMENSIONS];
+        for(int i = 0; i<NUM_DIMENSIONS; ++i)
         {
-            const size_t maxResultSize = 512;
-            
-            unsigned int* host_ids;
-            float* host_dimensions;
-            unsigned int* host_results;
-            
-            // host allocations
-            host_ids = (unsigned int*)malloc(nPoints * sizeof(unsigned int));
-            host_dimensions = (float*)malloc(3*nPoints * sizeof(float));
-            host_results = (unsigned int*)malloc((nPoints + nPoints * maxResultSize)
-                                           * sizeof(unsigned int));
-            
-            //initialise ids
-            memcpy(host_ids, kdtree.getIdVector().data(),
-                   nPoints * sizeof(unsigned int));
-            
-            //initialise dimensions
-            for (int dim = 0; dim < 3; dim++)
-            {
-                memcpy(&host_dimensions[nPoints * dim],
-                       kdtree.getDimensionVector(dim).data(),
-                       nPoints * sizeof(float));
-            }
-            
-            tbb::tick_count start_searching_CUDA =
-            tbb::tick_count::now();
-            
-            CUDAKernelWrapper(nPoints,host_dimensions,host_ids,host_results);
-            
-            tbb::tick_count end_searching_CUDA =
-            tbb::tick_count::now();
-            
-            int totalNumberOfPointsFound = 0;
-            
-            for(int p = 0; p<nPoints; p++)
-            {
-                unsigned int length = host_results[p];
-                totalNumberOfPointsFound += length;
-                int firstIndex = nPoints + maxResultSize*p;
-                                        std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
-                						for (int r = 0; r< length; ++r)
-                						{
-                							std::cout << r << "\tpoint id " << host_results[firstIndex + r] << std::endl;
-                
-                						}
-                
-            }
-            
-            std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
-            
-            std::cout << "searching points using CUDA took "
-            << (end_searching_CUDA - start_searching_CUDA).seconds()*1e3<< "ms\n"<<std::endl;
-            
-            free(host_ids);
-            free(host_dimensions);
-            free(host_results);
-            
-            
+            minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
+            maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
         }
-#endif
-	    tbb::tick_count start_searching =
-	    		tbb::tick_count::now();
-//		for (int i = 0; i < nPoints; ++i)
-//			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
-	    tbb::parallel_for(0, nPoints, 1, [=](int i) {
-
-	    		kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
-	        		});
-		tbb::tick_count end_searching =
-				tbb::tick_count::now();
-		std::cout << "searching points using FKDTree took "
-				<< (end_searching - start_searching).seconds()*1e3<< "ms\n"
-				<< " found points: " << pointsFound<< "\n******************************\n"
-						<< std::endl;
-	}
-
-//	int pointsFoundNaive = 0;
-//
-	if (runSequential)
-	{
-		std::cout << "Sequential run will start in 1 second.\n" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		std::chrono::steady_clock::time_point start_sequential =
-				std::chrono::steady_clock::now();
-		long int pointsFound = 0;
-		for (int i = 0; i < nPoints; ++i)
-		{
-			for (auto p : points)
-			{
-
-				bool inTheBox = true;
-
-				for (int d = 0; d < 3; ++d)
-				{
-
-					inTheBox &= (p[d] <= maxPoints[i][d]
-							&& p[d] >= minPoints[i][d]);
-
-				}
-				pointsFound += inTheBox;
-			}
-
-		}
-
-		std::chrono::steady_clock::time_point end_sequential =
-				std::chrono::steady_clock::now();
-		std::cout << "Sequential search algorithm took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_sequential - start_sequential).count() << "ms\n"
-						<< " found points: " << pointsFound
-						<< "\n******************************\n" << std::endl;
-	}
-
-	if (runOldKDTree)
-	{
-
-		std::cout << "Vanilla CMSSW KDTree run will start in 1 second.\n"
-				<< std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		std::chrono::steady_clock::time_point start_building =
-				std::chrono::steady_clock::now();
-
-		KDTreeLinkerAlgo<unsigned, 3> vanilla_tree;
-		std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_nodes;
-		std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_founds;
-
-		std::array<float, 3> minpos
-		{
-		{ 0.0f, 0.0f, 0.0f } }, maxpos
-		{
-		{ 0.0f, 0.0f, 0.0f } };
-
-		vanilla_tree.clear();
-		vanilla_founds.clear();
-		for (unsigned i = 0; i < nPoints; ++i)
-		{
-			float4 pos = cmssw_points[i];
-			vanilla_nodes.emplace_back(i, (float) pos.x, (float) pos.y,
-					(float) pos.z);
-			if (i == 0)
-			{
-				minpos[0] = pos.x;
-				minpos[1] = pos.y;
-				minpos[2] = pos.z;
-				maxpos[0] = pos.x;
-				maxpos[1] = pos.y;
-				maxpos[2] = pos.z;
-			}
-			else
-			{
-				minpos[0] = std::min((float) pos.x, minpos[0]);
-				minpos[1] = std::min((float) pos.y, minpos[1]);
-				minpos[2] = std::min((float) pos.z, minpos[2]);
-				maxpos[0] = std::max((float) pos.x, maxpos[0]);
-				maxpos[1] = std::max((float) pos.y, maxpos[1]);
-				maxpos[2] = std::max((float) pos.z, maxpos[2]);
-			}
-		}
-
-		KDTreeCube cluster_bounds = KDTreeCube(minpos[0], maxpos[0], minpos[1],
-				maxpos[1], minpos[2], maxpos[2]);
-
-		vanilla_tree.build(vanilla_nodes, cluster_bounds);
-		std::chrono::steady_clock::time_point end_building =
-				std::chrono::steady_clock::now();
-		long int pointsFound = 0;
-		std::chrono::steady_clock::time_point start_searching =
-				std::chrono::steady_clock::now();
-		for (int i = 0; i < nPoints; ++i)
-		{
-			KDTreeCube kd_searchcube(minPoints[i][0], maxPoints[i][0],
-					minPoints[i][1], maxPoints[i][1], minPoints[i][2],
-					maxPoints[i][2]);
-			vanilla_tree.search(kd_searchcube, vanilla_founds);
-			pointsFound += vanilla_founds.size();
-			vanilla_founds.clear();
-		}
-		std::chrono::steady_clock::time_point end_searching =
-				std::chrono::steady_clock::now();
-
-		std::cout << "building Vanilla CMSSW KDTree with " << nPoints
-				<< " points took " << std::chrono::duration_cast
-				< std::chrono::milliseconds
-				> (end_building - start_building).count() << "ms" << std::endl;
-		std::cout << "searching points using Vanilla CMSSW KDTree took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_searching - start_searching).count() << "ms"
-						<< std::endl;
-		std::cout << pointsFound
-				<< " points found using Vanilla CMSSW KDTree\n******************************\n"
-				<< std::endl;
-
-		delete[] cmssw_points;
-	}
-	return 0;
+        
+        Queue indecesToVisit;
+        indecesToVisit.front = indecesToVisit.tail =indecesToVisit.size =0;
+        unsigned int pointsFound=0;
+        unsigned int resultIndex = nPoints + MAX_RESULT_SIZE*point_index;
+        push_back(&indecesToVisit, 0);
+        
+        for (int depth = 0; depth < theDepth + 1; ++depth)
+        {
+            int dimension = depth % NUM_DIMENSIONS;
+            unsigned int numberOfIndecesToVisitThisDepth =
+            indecesToVisit.size;
+            
+            for (unsigned int visitedIndecesThisDepth = 0;
+                 visitedIndecesThisDepth < numberOfIndecesToVisitThisDepth;
+                 visitedIndecesThisDepth++)
+            {
+                
+                //				unsigned int index = indecesToVisit.data[(indecesToVisit.front+visitedIndecesThisDepth)% MAX_SIZE];
+                unsigned int index = pop_front(&indecesToVisit);
+                //				if(point_index == 0)
+                //				{
+                //					printf("index: %d, dimensions: %f %f %f\n", index, dimensions[index], dimensions[nPoints+index], dimensions[2*nPoints+index]);
+                //				}
+                
+                bool intersection = intersects(index,dimensions, nPoints, minPoint, maxPoint,
+                                               dimension);
+                
+                if(intersection && isInTheBox(index, dimensions, nPoints, minPoint, maxPoint))
+                {
+                    if(pointsFound < MAX_RESULT_SIZE)
+                    {
+                        //						if(point_index == 0)
+                        //						{
+                        //							printf("index: %d added to results", index);
+                        //						}
+                        
+                        results[resultIndex] = index;
+                        resultIndex++;
+                        pointsFound++;
+                    }
+                    
+                }
+                
+                bool isLowerThanBoxMin = dimensions[nPoints*dimension + index]
+                < minPoint[dimension];
+                int startSon = isLowerThanBoxMin; //left son = 0, right son =1
+                
+                int endSon = isLowerThanBoxMin || intersection;
+                
+                for (int whichSon = startSon; whichSon < endSon + 1; ++whichSon)
+                {
+                    unsigned int indexToAdd = leftSonIndex(index) + whichSon;
+                    
+                    if (indexToAdd < nPoints)
+                    {
+                        push_back(&indecesToVisit,indexToAdd);
+                    
+                    }
+                }
+            }
+            
+            //			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
+        }
+        
+        results[point_index] = pointsFound;
+        
+    }
+    
 }
+
+void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results)
+{
+    
+    // Device vectors
+    float *d_dim = 0;
+    unsigned int *d_ids;
+    unsigned int *d_results;
+
+    // Allocate device memory
+    cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
+    cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
+    cudaMalloc(&d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+               * sizeof(unsigned int));
+    
+    // Copy host vectors to device
+    cudaMemcpy( d_dim, h_dim, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy( d_ids, h_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy( d_results, h_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+               * sizeof(unsigned int), cudaMemcpyHostToDevice);
+
+    // Number of thread blocks
+    unsigned int gridSize = (int)ceil((float)nPoints/BLOCKSIZE);
+    
+    CUDASearchInTheKDBox<<<gridSize, BLOCKSIZE>>>(nPoints, d_dim, d_ids,d_results);
+    
+    // Back to host
+    cudaMemcpy( h_results, d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+               * sizeof(unsigned int), cudaMemcpyDeviceToHost );
+    
+    
+    // Release device memory
+    cudaFree(d_dim);
+    cudaFree(d_ids);
+    cudaFree(d_results);
+    
+}
+
