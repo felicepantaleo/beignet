@@ -6,7 +6,7 @@ NVCC=nvcc
 all: kdtree
 
 kdtree: searchInTheBoxCuda.o
-	$(CC) $(CFLAGS) -o kdtree -L/usr/local/cuda/lib64 -lcuda -lcudart main.cpp searchInTheBoxCuda.o
+	$(CC) $(CFLAGS) -o kdtree -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcuda -lcudart main.cpp searchInTheBoxCuda.o
 
 searchInTheBoxCuda.o:
 	$(NVCC) -I/usr/local/cuda/include -L/usr/local/cuda/lib64 -lcuda -lcudart -c -arch=sm_20 searchInTheBoxCuda.cu
