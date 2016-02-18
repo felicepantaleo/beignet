@@ -26,7 +26,7 @@ ifeq ($(NVCC_TEST),nvcc)
 
     CUDAOBJECT = searchInTheBoxCuda.o
 else
-    @echo "NVCC not found"
+    @echo   "NVCC not found"
 
 endif
 
