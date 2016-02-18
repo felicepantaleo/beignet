@@ -7,7 +7,7 @@
 #include <thread>
 #include "tbb/tbb.h"
 #include <string.h>
-#include <CL/cl.h>
+#include <cl.h>
 #include "cl_helper.h"
 #define __CL_ENABLE_EXCEPTIONS
 #include <fstream>
