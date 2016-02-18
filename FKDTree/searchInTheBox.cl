@@ -41,19 +41,19 @@ void erase_first_n_elements(Queue* queue, unsigned int n)
 
 }
 
-inline
+
 unsigned int leftSonIndex(unsigned int index) const
 {
 	return 2 * index + 1;
 }
 
-inline
+
 unsigned int rightSonIndex(unsigned int index) const
 {
 	return 2 * index + 2;
 }
 
-inline
+
 bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint, int dimension) const
 {
@@ -61,7 +61,7 @@ bool intersects(unsigned int index, float* theDimensions, unsigned int nPoints,
 			&& theDimensions[nPoints * dimension + index] >= minPoint[dimension]);
 }
 
-inline
+
 bool isInTheBox(unsigned int index, float* theDimensions, unsigned int nPoints,
 		float* minPoint, float* maxPoint) const
 {
@@ -85,7 +85,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 	{
 		result[point_index] = 0;
 
-		int theDepth = floor(log2(nPoints));
+		int theDepth = floor(log2((float)nPoints));
 
 		float minPoint[NUM_DIMENSIONS];
 		float maxPoint[NUM_DIMENSIONS];
@@ -121,7 +121,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 				{
 					if(pointsFound < MAX_RESULT_SIZE)
 					{
-						result[resultIndex] = index;
+						results[resultIndex] = index;
 						resultIndex++;
 						pointsFound++;
 					}
