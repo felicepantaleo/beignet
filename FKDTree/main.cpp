@@ -433,8 +433,7 @@ int main(int argc, char* argv[])
 									* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
-					std::chrono::steady_clock::time_point start_search_opencl =
-							std::chrono::steady_clock::now();
+
 
 					for (int dim = 0; dim < 3; dim++)
 					{
@@ -504,7 +503,8 @@ int main(int argc, char* argv[])
 
 					cl_event kernel_event;
 
-
+					std::chrono::steady_clock::time_point start_search_opencl =
+							std::chrono::steady_clock::now();
 					checkOclErrors(
 							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
