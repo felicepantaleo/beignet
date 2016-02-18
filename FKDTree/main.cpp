@@ -647,6 +647,29 @@ int main(int argc, char* argv[])
             
             CUDAKernelWrapper(nPoints,host_dimensions,host_ids,host_results);
             
+            int totalNumberOfPointsFound = 0;
+            
+            for(int p = 0; p<nPoints; p++)
+            {
+                unsigned int length = host_results[p];
+                totalNumberOfPointsFound += length;
+                int firstIndex = nPoints + maxResultSize*p;
+                                        std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
+                						for (int r = 0; r< length; ++r)
+                						{
+                							std::cout << r << "\tpoint id " << host_results[firstIndex + r] << std::endl;
+                
+                						}
+                
+            }
+            
+            std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
+            
+            free(host_ids);
+            free(host_dimensions);
+            free(host_results);
+            
+            
         }
 
 	    tbb::tick_count start_searching =
