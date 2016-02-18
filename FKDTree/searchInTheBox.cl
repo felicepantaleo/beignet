@@ -1,4 +1,4 @@
-#define MAX_SIZE 15
+#define MAX_SIZE 25
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 100
 #define RANGE 0.1f;
@@ -154,6 +154,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 
 			erase_first_n_elements(&indecesToVisit,numberOfIndecesToVisitThisDepth );
 		}
+
+		results[pointIndex] = pointsFound;
 
 	}
 
