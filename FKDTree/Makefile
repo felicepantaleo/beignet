@@ -5,7 +5,7 @@ CC=g++
 all: kdtree
 
 kdtree: main.cpp
-	$(CC) $(CFLAGS) main.cpp -o kdtree -lOpenCL
+	$(CC) $(CFLAGS) main.cpp -o kdtree -lOpenCL -ltbb
 
 clean:
 	rm kdtree mem.log*

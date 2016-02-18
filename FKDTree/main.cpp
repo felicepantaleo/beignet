@@ -178,6 +178,7 @@ static void show_usage(std::string name)
 			<< "\t-f \tRun FKDtree algo\n" << "\t-a \tRun all the algos\n"
 			<< "\t-p <number of threads>\tSpecify the number of tbb parallel threads to use\n"
 			<< "\t-ocl \tRun OpenCL search algo\n" << std::endl;
+            << "\t-cuda \tRunr CUDA search algo\n" <<std::endl;
 
 }
 int main(int argc, char* argv[])
