@@ -525,6 +525,11 @@ int main(int argc, char* argv[])
 
 					unsigned int* result = (unsigned int*)h_results;
 					unsigned int totalNumberOfPointsFound = 0;
+
+					for(int v=0; v< nPoints + nPoints * maxResultSize; v++ )
+					{
+						std::cout << result[v] << std::endl;
+					}
 					for(int p = 0; p<nPoints; p++)
 					{
 						unsigned int length = result[p];
