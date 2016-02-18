@@ -7,18 +7,18 @@
 #include <thread>
 #include "tbb/tbb.h"
 #include <string.h>
-#ifdef __NV_CL_C_VERSION
+#ifdef OPENCL
 #include <CL/cl.h>
 #include "cl_helper.h"
 #endif
-#define __CL_ENABLE_EXCEPTIONS
+#define OPENCL
 #include <fstream>
 #include "cuda.h"
 
 #include <stdlib.h>
 #include <sys/time.h>
 
-#ifdef __NV_CL_C_VERSION
+#ifdef OPENCL
 double shrDeltaT()
 {
 #if defined(_WIN32)
