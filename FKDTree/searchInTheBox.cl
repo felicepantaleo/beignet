@@ -1,4 +1,4 @@
-#define MAX_SIZE 25
+#define MAX_SIZE 64
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 100
 #define RANGE 0.05f;
