@@ -9,7 +9,7 @@ kdtree: searchInTheBoxCuda.o
 	$(CC) $(CFLAGS) -o kdtree -L/usr/local/cuda/lib64 -lcuda -lcudart main.cpp searchInTheBoxCuda.o
 
 searchInTheBoxCuda.o:
-	$(NVCC) -L/usr/local/cuda/lib64 -lcuda -lcudart -c -arch=sm_20 searchInTheBoxCuda.cu
+	$(NVCC) -I/usr/local/cuda/include -L/usr/local/cuda/lib64 -lcuda -lcudart -c -arch=sm_20 searchInTheBoxCuda.cu
 
 clean: rm -rf *o kdtree
 
