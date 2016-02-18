@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
 			else
 				std::cerr << "FKDTree wrong" << std::endl;
 		}
-
+#ifdef OPENCL
 		if (runOpenCL)
 		{
 
@@ -615,10 +615,9 @@ int main(int argc, char* argv[])
 			}
 			free(platforms);
 
-		}*/
-        
-        
-        if (runCuda)
+		}
+#endif
+    if (runCuda)
         {
             unsigned int* host_ids;
             float* host_dimensions;
@@ -661,6 +660,7 @@ int main(int argc, char* argv[])
 				<< " found points: " << pointsFound<< "\n******************************\n"
 						<< std::endl;
 	}
+
 //	int pointsFoundNaive = 0;
 //
 	if (runSequential)

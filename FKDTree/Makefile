@@ -1,4 +1,4 @@
-CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native -DOPENCL
+CFLAGS= -std=c++11 -ftree-vectorize -march=native -ffast-math -Ofast -march=native -mtune=native #-DOPENCL
 
 CC=g++
 NVCC=nvcc
