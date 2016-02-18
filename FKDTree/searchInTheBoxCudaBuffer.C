@@ -2,6 +2,7 @@
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 256
 #define RANGE 0.2f;
+#define BLOCKSIZE 1024
 #include "cuda.h"
 #include <stdlib.h>
 
@@ -173,6 +174,45 @@ __global__ void CUDASearchInTheKDBox(unsigned int nPoints,  float* dimensions,  
 
 void CUDAKernelWrapper(unsigned int nPoints,float *h_dim,unsigned int *h_ids,unsigned int *h_results)
 {
+    
+    // Device vectors
+    float *d_dim;
+    unsigned int *d_ids;
+    unsigned int *d_results
+
+    // Allocate device memory
+    cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
+    cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
+    cudaMalloc(&d_results, (nPoints + nPoints * maxResultSize)
+               * sizeof(unsigned int));
+    
+    // Copy host vectors to device
+    cudaMemcpy( d_dim, h_dim, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy( d_ids, h_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy( d_results, h_results, (nPoints + nPoints * maxResultSize)
+               * sizeof(unsigned int), cudaMemcpyHostToDevice);
+
+    // Number of thread blocks in grid
+    unsigned int gridSize = (int)ceil((float)n/BLOCKSIZE);
+    
+    // Execute the kernel
+    CUDASearchInTheKDBox<<<gridSize, BLOCKSIZE>>>(nPoints, d_dim, d_ids,d_results);
+    
+    // Copy array back to host
+    cudaMemcpy( h_c, d_c, bytes, cudaMemcpyDeviceToHost );
+    
+    // Sum up vector c and print result divided by n, this should equal 1 within error
+    double sum = 0;
+    for(i=0; i<n; i++)
+        sum += h_c[i];
+    printf("final result: %f\n", sum/n);
+    
+    // Release device memory
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_c);
+
+    return 0;
     
 }
 
