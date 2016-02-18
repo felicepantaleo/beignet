@@ -527,21 +527,21 @@ int main(int argc, char* argv[])
 					unsigned int totalNumberOfPointsFound = 0;
 
 //
-//					for(int p = 0; p<nPoints; p++)
-//					{
-//						unsigned int length = result[p];
-//						totalNumberOfPointsFound += length;
-//						int firstIndex = nPoints + maxResultSize*p;
+					for(int p = 0; p<nPoints; p++)
+					{
+						unsigned int length = result[p];
+						totalNumberOfPointsFound += length;
+						int firstIndex = nPoints + maxResultSize*p;
 //						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
 //						for (int r = 0; r< length; ++r)
 //						{
 //							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
 //
 //						}
-//
-//
-//
-//					}
+
+
+
+					}
 					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
 
