@@ -508,8 +508,6 @@ int main(int argc, char* argv[])
 							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
 
-
-					std::this_thread::sleep_for(std::chrono::seconds(2));
 					memcpy(h_results, d_results,
 							(nPoints + nPoints * maxResultSize)
 									* sizeof(unsigned int));
