@@ -535,10 +535,10 @@ int main(int argc, char* argv[])
 						unsigned int length = result[p];
 						totalNumberOfPointsFound += length;
 						int firstIndex = nPoints + maxResultSize*p;
-//						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
+						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
 						for (int r = 0; r< length; ++r)
 						{
-//							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
+							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
 
 						}
 
