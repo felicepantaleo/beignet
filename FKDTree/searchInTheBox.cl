@@ -90,10 +90,6 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		{
 			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
 			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
-			if(point_index ==0){
-
-				printf("%f %f\n",minPoint[i],maxPoint[i]);
-			}
 		}
 
 		Queue indecesToVisit;
@@ -113,7 +109,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 					visitedIndecesThisDepth++)
 			{
 
-				unsigned int index = indecesToVisit.data[indecesToVisit.front+visitedIndecesThisDepth];
+				unsigned int index = indecesToVisit.data[(indecesToVisit.front+visitedIndecesThisDepth)% MAX_SIZE];
 
 				bool intersection = intersects(index,dimensions, nPoints, minPoint, maxPoint,
 						dimension);
