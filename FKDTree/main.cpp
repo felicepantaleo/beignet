@@ -453,8 +453,7 @@ int main(int argc, char* argv[])
 
 					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
 
-					std::chrono::steady_clock::time_point end_opencl =
-							std::chrono::steady_clock::now();
+
 
 					//unsigned int* risultati = (unsigned int*) h_results;
 					/*for (int i = 0; i < nPoints; ++i)
@@ -504,6 +503,8 @@ int main(int argc, char* argv[])
 									&d_results_mem));
 
 					cl_event kernel_event;
+
+
 					checkOclErrors(
 							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
@@ -512,8 +513,11 @@ int main(int argc, char* argv[])
 							(nPoints + nPoints * maxResultSize)
 									* sizeof(unsigned int));
 
+
+					std::chrono::steady_clock::time_point end_opencl =
+							std::chrono::steady_clock::now();
 					std::cout
-							<< "initialization of buffers using opencl device "
+							<< "research using opencl device "
 							<< platform_name << " " << device_name << " for "
 							<< nPoints << " points took "
 							<< std::chrono::duration_cast
