@@ -350,8 +350,6 @@ int main(int argc, char* argv[])
 							&error);
 					checkOclErrors(error);
 
-					std::chrono::steady_clock::time_point start_opencl =
-							std::chrono::steady_clock::now();
 
 					cl_mem d_dimensions_mem;
 					cl_mem h_dimensions_mem;
@@ -435,6 +433,8 @@ int main(int argc, char* argv[])
 									* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
+					std::chrono::steady_clock::time_point start_opencl =
+							std::chrono::steady_clock::now();
 
 					for (int dim = 0; dim < 3; dim++)
 					{
@@ -514,7 +514,7 @@ int main(int argc, char* argv[])
 									* sizeof(unsigned int));
 
 
-					std::chrono::steady_clock::time_point end_opencl =
+					std::chrono::steady_clock::time_point end_search_opencl =
 							std::chrono::steady_clock::now();
 					std::cout
 							<< "research using opencl device "
