@@ -1,6 +1,8 @@
 #define MAX_SIZE 15
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 100
+#define RANGE 0.1f;
+
 typedef struct
 {
 
@@ -79,7 +81,7 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 	unsigned int threadIdx = get_local_id(0);
 	unsigned int blockIdx = get_group_id(0);
 	unsigned int point_index = threadIdx + blockIdx * get_local_size(0);
-	float range = 0.1f;
+//	float range = 0.1f;
 	if(point_index < nPoints)
 	{
 		results[point_index] = 0;
@@ -90,8 +92,8 @@ __kernel void SearchInTheKDBox(unsigned int nPoints, __global float* dimensions,
 		float maxPoint[NUM_DIMENSIONS];
 		for(int i = 0; i<NUM_DIMENSIONS; ++i)
 		{
-			minPoint[i] = dimensions[nPoints*i+point_index] - range;
-			maxPoint[i] = dimensions[nPoints*i+point_index] + range;
+			minPoint[i] = dimensions[nPoints*i+point_index] - RANGE;
+			maxPoint[i] = dimensions[nPoints*i+point_index] + RANGE;
 
 		}
 
