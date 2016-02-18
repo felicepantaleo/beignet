@@ -513,13 +513,39 @@ int main(int argc, char* argv[])
                        nPoints * sizeof(float));
             }
             
+            // Device vectors
+            float *d_dim = 0;
+            unsigned int *d_ids;
+            unsigned int *d_results;
+            
+            // Allocate device memory
+            cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
+            cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
+            cudaMalloc(&d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+                       * sizeof(unsigned int));
+            
+            // Copy host vectors to device
+            cudaMemcpy( d_dim, host_dimensions, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
+            cudaMemcpy( d_ids, host_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
+            //cudaMemcpy( d_results, host_results, (nPoints + nPoints * MAX_RESULT_SIZE)* sizeof(unsigned int), cudaMemcpyHostToDevice);
+            
+            
             tbb::tick_count start_searching_CUDA =
             tbb::tick_count::now();
             
-            CUDAKernelWrapper(nPoints,host_dimensions,host_ids,host_results);
-            
+            CUDAKernelWrapper(nPoints,d_dim,d_ids,d_results);
+            cudaStreamSynchronize(0);
             tbb::tick_count end_searching_CUDA =
             tbb::tick_count::now();
+            
+            // Back to host
+            cudaMemcpy( host_results, d_results, (nPoints + nPoints * MAX_RESULT_SIZE)
+                       * sizeof(unsigned int), cudaMemcpyDeviceToHost );
+            
+            // Release device memory
+            cudaFree(d_dim);
+            cudaFree(d_ids);
+            cudaFree(d_results);
             
             int totalNumberOfPointsFound = 0;
             
