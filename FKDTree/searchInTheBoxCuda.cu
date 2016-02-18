@@ -2,6 +2,8 @@
 #define NUM_DIMENSIONS 3
 #define MAX_RESULT_SIZE 256
 #define RANGE 0.2f;
+#include "cuda.h"
+#include <stdlib.h>
 
 typedef struct
 {
