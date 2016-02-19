@@ -583,6 +583,7 @@ int main(int argc, char* argv[])
 						partial_results[i] =kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
 					});
 			tbb::tick_count end_searching = tbb::tick_count::now();
+			pointsFound = std::accumulate(partial_results.begin(), partial_results.end(), 0);
 			std::cout << "searching points using FKDTree took "
 					<< (end_searching - start_searching).seconds() * 1e3
 					<< "ms\n" << " found points: " << pointsFound
@@ -603,7 +604,7 @@ int main(int argc, char* argv[])
 		}
 
 	}
-}
+
 
 //	int pointsFoundNaive = 0;
 //
