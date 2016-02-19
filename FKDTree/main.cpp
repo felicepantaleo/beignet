@@ -570,7 +570,7 @@ int main(int argc, char* argv[])
 		if (runTheTests)
 		{
 
-			std::vector<unsigned int> partial_results(nPoints,0);
+			std::vector<unsigned int> partial_results(nPoints);
 
 			tbb::tick_count start_searching = tbb::tick_count::now();
 //		for (int i = 0; i < nPoints; ++i)
