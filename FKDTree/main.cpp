@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <thread>
 #include "tbb/tbb.h"
+#include <atomic>
 #include <string.h>
 #ifdef __USE_OPENCL__
 #include <fstream>
@@ -48,10 +49,9 @@ static void show_usage(std::string name)
 			<< "\t-ocl \tRun OpenCL search algo\n"
 #endif
 #ifdef __USE_CUDA__
-            << "\t-cuda \tRunr CUDA search algo\n"
+			<< "\t-cuda \tRunr CUDA search algo\n"
 #endif
-            <<std::endl;
-
+			<< std::endl;
 
 }
 int main(int argc, char* argv[])
@@ -62,14 +62,14 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	int nPoints=100000;
+	int nPoints = 100000;
 	int numberOfThreads = 1;
 	bool runTheTests = false;
 	bool runSequential = false;
 	bool runFKDTree = false;
 	bool runOldKDTree = false;
 	bool runOpenCL = false;
-    bool runCuda = false;
+	bool runCuda = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg = argv[i];
@@ -130,20 +130,21 @@ int main(int argc, char* argv[])
 				std::istringstream ss(argv[i]);
 				if (!(ss >> numberOfThreads))
 				{
-					std::cerr << "Invalid number of threads " << argv[i] << '\n';
+					std::cerr << "Invalid number of threads " << argv[i]
+							<< '\n';
 
 					exit(1);
 
 				}
 			}
 		}
-        else if (arg == "-cuda")
-        {
-            runFKDTree = true;
-            runCuda = true;
-        }
+		else if (arg == "-cuda")
+		{
+			runFKDTree = true;
+			runCuda = true;
+		}
 	}
-    tbb::task_scheduler_init init(numberOfThreads);
+	tbb::task_scheduler_init init(numberOfThreads);
 
 	std::vector<KDPoint<float, 3> > points;
 	std::vector<KDPoint<float, 3> > minPoints;
@@ -192,7 +193,7 @@ int main(int argc, char* argv[])
 
 	if (runFKDTree)
 	{
-		long int pointsFound = 0;
+		std::atomic<unsigned int> pointsFound = 0;
 		std::cout << "FKDTree run will start in 1 second.\n" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -213,7 +214,7 @@ int main(int argc, char* argv[])
 			else
 				std::cerr << "FKDTree wrong" << std::endl;
 		}
-        
+
 #ifdef __USE_OPENCL__
 		if (runOpenCL)
 		{
@@ -245,13 +246,12 @@ int main(int argc, char* argv[])
 					checkOclErrors(
 							clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL));
 					cl_context context = clCreateContext(NULL, 1, &device, NULL,
-					NULL, &error);
+							NULL, &error);
 					checkOclErrors(error);
 					cl_command_queue command_queue = clCreateCommandQueue(
 							context, device, 0/*CL_QUEUE_PROFILING_ENABLE*/,
 							&error);
 					checkOclErrors(error);
-
 
 					cl_mem d_dimensions_mem;
 					cl_mem h_dimensions_mem;
@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
 
 					//allocating host memory block
 					h_dimensions_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, 3 * nPoints * sizeof(float), NULL,
+							CL_MEM_ALLOC_HOST_PTR, 3 * nPoints * sizeof(float), NULL,
 							&error);
 					checkOclErrors(error);
 
@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
 							nPoints * sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 					h_ids_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
+							CL_MEM_ALLOC_HOST_PTR, nPoints * sizeof(unsigned int), NULL,
 							&error);
 					checkOclErrors(error);
 
@@ -315,27 +315,26 @@ int main(int argc, char* argv[])
 
 					d_results_mem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), NULL, &error);
+							* sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 					h_results_mem = clCreateBuffer(context, /*CL_MEM_READ_WRITE | */
-					CL_MEM_ALLOC_HOST_PTR,
+							CL_MEM_ALLOC_HOST_PTR,
 							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), NULL, &error);
+							* sizeof(unsigned int), NULL, &error);
 					checkOclErrors(error);
 
 					h_results = clEnqueueMapBuffer(command_queue, h_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
 							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), 0, NULL, NULL,
+							* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
 					d_results = clEnqueueMapBuffer(command_queue, d_results_mem,
 							CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0,
 							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int), 0, NULL, NULL,
+							* sizeof(unsigned int), 0, NULL, NULL,
 							&error);
 					checkOclErrors(error);
-
 
 					for (int dim = 0; dim < 3; dim++)
 					{
@@ -353,8 +352,6 @@ int main(int argc, char* argv[])
 
 					//memcpy(h_results, d_results,nPoints * sizeof(unsigned int));
 
-
-
 					//unsigned int* risultati = (unsigned int*) h_results;
 					/*for (int i = 0; i < nPoints; ++i)
 					 {
@@ -368,7 +365,7 @@ int main(int argc, char* argv[])
 					std::string source((std::istreambuf_iterator<char>(ifs)),
 							std::istreambuf_iterator<char>());
 					const char* sources[] =
-					{ source.data() };
+					{	source.data()};
 					const size_t source_length = source.length();
 
 					cl_program program = clCreateProgramWithSource(context, 1,
@@ -405,46 +402,43 @@ int main(int argc, char* argv[])
 					cl_event kernel_event;
 
 					std::chrono::steady_clock::time_point start_search_opencl =
-							std::chrono::steady_clock::now();
+					std::chrono::steady_clock::now();
 					checkOclErrors(
 							clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &gws, &lws, 0, NULL, &kernel_event));
 
-
 					memcpy(h_results, d_results,
 							(nPoints + nPoints * maxResultSize)
-									* sizeof(unsigned int));
-
+							* sizeof(unsigned int));
 
 					std::chrono::steady_clock::time_point end_search_opencl =
-							std::chrono::steady_clock::now();
+					std::chrono::steady_clock::now();
 					std::cout
-							<< "research using opencl device "
-							<< platform_name << " " << device_name << " for "
-							<< nPoints << " points took "
-							<< std::chrono::duration_cast
-							< std::chrono::milliseconds
-							> (end_search_opencl - start_search_opencl).count() << "ms"
-									<< std::endl;
+					<< "research using opencl device "
+					<< platform_name << " " << device_name << " for "
+					<< nPoints << " points took "
+					<< std::chrono::duration_cast
+					< std::chrono::milliseconds
+					> (end_search_opencl - start_search_opencl).count() << "ms"
+					<< std::endl;
 
 					unsigned int* result = (unsigned int*)h_results;
 					unsigned int totalNumberOfPointsFound = 0;
-
-//
-					for(int p = 0; p<nPoints; p++)
+					if (runTheTests)
 					{
-						unsigned int length = result[p];
-						totalNumberOfPointsFound += length;
-						int firstIndex = nPoints + maxResultSize*p;
-//						std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
-//						for (int r = 0; r< length; ++r)
-//						{
-//							std::cout << r << "\tpoint id " << result[firstIndex + r] << std::endl;
-//
-//						}
+						int totalNumberOfPointsFound = 0;
+						for(int p = 0; p<nPoints; p++)
+						{
+							unsigned int length = host_results[p];
+							totalNumberOfPointsFound += length;
+							int firstIndex = nPoints + maxResultSize*p;
+
+						}
+
+						std::cout << "GPU using OpenCL found " << totalNumberOfPointsFound << " points." << std::endl;
 
 					}
-					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
+					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
@@ -490,227 +484,244 @@ int main(int argc, char* argv[])
 		}
 #endif
 #ifdef __USE_CUDA__
-    if (runCuda)
-        {
-            const size_t maxResultSize = 512;
-            
-            unsigned int* host_ids;
-            float* host_dimensions;
-            unsigned int* host_results;
-            
-            // host allocations
-            host_ids = (unsigned int*)malloc(nPoints * sizeof(unsigned int));
-            host_dimensions = (float*)malloc(3*nPoints * sizeof(float));
-            host_results = (unsigned int*)malloc((nPoints + nPoints * maxResultSize)
-                                           * sizeof(unsigned int));
-            
-            //initialise ids
-            memcpy(host_ids, kdtree.getIdVector().data(),
-                   nPoints * sizeof(unsigned int));
-            
-            //initialise dimensions
-            for (int dim = 0; dim < 3; dim++)
-            {
-                memcpy(&host_dimensions[nPoints * dim],
-                       kdtree.getDimensionVector(dim).data(),
-                       nPoints * sizeof(float));
-            }
-            
-            // Device vectors
-            float *d_dim = 0;
-            unsigned int *d_ids;
-            unsigned int *d_results;
-            
-            // Allocate device memory
-            cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
-            cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
-            cudaMalloc(&d_results, (nPoints + nPoints * maxResultSize)
-                       * sizeof(unsigned int));
-            
-            // Copy host vectors to device
-            cudaMemcpy( d_dim, host_dimensions, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
-            cudaMemcpy( d_ids, host_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
-            //cudaMemcpy( d_results, host_results, (nPoints + nPoints * maxResultSize)* sizeof(unsigned int), cudaMemcpyHostToDevice);
-            
-            
-            tbb::tick_count start_searching_CUDA =
-            tbb::tick_count::now();
-            
-            CUDAKernelWrapper(nPoints,d_dim,d_ids,d_results);
-            cudaStreamSynchronize(0);
-            tbb::tick_count end_searching_CUDA =
-            tbb::tick_count::now();
-            
-            // Back to host
-            cudaMemcpy( host_results, d_results, (nPoints + nPoints * maxResultSize)
-                       * sizeof(unsigned int), cudaMemcpyDeviceToHost );
-            
-            // Release device memory
-            cudaFree(d_dim);
-            cudaFree(d_ids);
-            cudaFree(d_results);
-            
-            int totalNumberOfPointsFound = 0;
-            /*
-            for(int p = 0; p<nPoints; p++)
-            {
-                unsigned int length = host_results[p];
-                totalNumberOfPointsFound += length;
-                int firstIndex = nPoints + maxResultSize*p;
-                                        std::cout << "searching neighbor for point id " << p << " found " << length << " points" <<  std::endl;
-                						for (int r = 0; r< length; ++r)
-                						{
-                							std::cout << r << "\tpoint id " << host_results[firstIndex + r] << std::endl;
-                
-                						}
-                
-            }*/
-            
-            std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
-            
-            std::cout << "searching points using CUDA took "
-            << (end_searching_CUDA - start_searching_CUDA).seconds()*1e3<< "ms\n"<<std::endl;
-            
-            free(host_ids);
-            free(host_dimensions);
-            free(host_results);
-            
-            
-        }
+		if (runCuda)
+		{
+			const size_t maxResultSize = 512;
+
+			unsigned int* host_ids;
+			float* host_dimensions;
+			unsigned int* host_results;
+
+			// host allocations
+			host_ids = (unsigned int*)malloc(nPoints * sizeof(unsigned int));
+			host_dimensions = (float*)malloc(3*nPoints * sizeof(float));
+			host_results = (unsigned int*)malloc((nPoints + nPoints * maxResultSize)
+					* sizeof(unsigned int));
+
+			//initialise ids
+			memcpy(host_ids, kdtree.getIdVector().data(),
+					nPoints * sizeof(unsigned int));
+
+			//initialise dimensions
+			for (int dim = 0; dim < 3; dim++)
+			{
+				memcpy(&host_dimensions[nPoints * dim],
+						kdtree.getDimensionVector(dim).data(),
+						nPoints * sizeof(float));
+			}
+
+			// Device vectors
+			float *d_dim = 0;
+			unsigned int *d_ids;
+			unsigned int *d_results;
+
+			// Allocate device memory
+			cudaMalloc(&d_dim, 3*nPoints * sizeof(float));
+			cudaMalloc(&d_ids, nPoints * sizeof(unsigned int));
+			cudaMalloc(&d_results, (nPoints + nPoints * maxResultSize)
+					* sizeof(unsigned int));
+
+			// Copy host vectors to device
+			cudaMemcpy( d_dim, host_dimensions, 3*nPoints * sizeof(float), cudaMemcpyHostToDevice);
+			cudaMemcpy( d_ids, host_ids, nPoints * sizeof(unsigned int), cudaMemcpyHostToDevice);
+			//cudaMemcpy( d_results, host_results, (nPoints + nPoints * maxResultSize)* sizeof(unsigned int), cudaMemcpyHostToDevice);
+
+			tbb::tick_count start_searching_CUDA =
+			tbb::tick_count::now();
+
+			CUDAKernelWrapper(nPoints,d_dim,d_ids,d_results);
+			cudaStreamSynchronize(0);
+			tbb::tick_count end_searching_CUDA =
+			tbb::tick_count::now();
+
+			// Back to host
+			cudaMemcpy( host_results, d_results, (nPoints + nPoints * maxResultSize)
+					* sizeof(unsigned int), cudaMemcpyDeviceToHost );
+
+			// Release device memory
+			cudaFree(d_dim);
+			cudaFree(d_ids);
+			cudaFree(d_results);
+
+			if (runTheTests)
+			{
+				int totalNumberOfPointsFound = 0;
+				for(int p = 0; p<nPoints; p++)
+				{
+					unsigned int length = host_results[p];
+					totalNumberOfPointsFound += length;
+					int firstIndex = nPoints + maxResultSize*p;
+
+				}
+
+				std::cout << "GPU using CUDA found " << totalNumberOfPointsFound << " points." << std::endl;
+
+			}
+
+
+			std::cout << "searching points using CUDA took "
+			<< (end_searching_CUDA - start_searching_CUDA).seconds()*1e3<< "ms\n"<<std::endl;
+
+			free(host_ids);
+			free(host_dimensions);
+			free(host_results);
+
+		}
 #endif
-	    tbb::tick_count start_searching =
-	    		tbb::tick_count::now();
+
+		if (runTheTests)
+		{
+
+			tbb::tick_count start_searching = tbb::tick_count::now();
 //		for (int i = 0; i < nPoints; ++i)
 //			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
-	    tbb::parallel_for(0, nPoints, 1, [=](int i) {
 
-	    		kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
-	        		});
-		tbb::tick_count end_searching =
-				tbb::tick_count::now();
-		std::cout << "searching points using FKDTree took "
-				<< (end_searching - start_searching).seconds()*1e3<< "ms\n"
-				<< " found points: " << pointsFound<< "\n******************************\n"
-						<< std::endl;
+			tbb::parallel_for(0, nPoints, 1,
+					[=](int i)
+					{
+
+						pointsFound +=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size;
+					});
+			tbb::tick_count end_searching = tbb::tick_count::now();
+			std::cout << "searching points using FKDTree took "
+					<< (end_searching - start_searching).seconds() * 1e3
+					<< "ms\n" << " found points: " << pointsFound
+					<< "\n******************************\n" << std::endl;
+		}
+		else
+		{
+			tbb::tick_count start_searching = tbb::tick_count::now();
+
+			tbb::parallel_for(0, nPoints, 1, [=](int i)
+			{
+				kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
+			});
+			tbb::tick_count end_searching = tbb::tick_count::now();
+			std::cout << "searching points using FKDTree took "
+					<< (end_searching - start_searching).seconds() * 1e3
+					<< "ms\n" << std::endl;
+		}
+
 	}
+}
 
 //	int pointsFoundNaive = 0;
 //
-	if (runSequential)
+if (runSequential)
+{
+	std::cout << "Sequential run will start in 1 second.\n" << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::chrono::steady_clock::time_point start_sequential =
+	std::chrono::steady_clock::now();
+	long int pointsFound = 0;
+	for (int i = 0; i < nPoints; ++i)
 	{
-		std::cout << "Sequential run will start in 1 second.\n" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		std::chrono::steady_clock::time_point start_sequential =
-				std::chrono::steady_clock::now();
-		long int pointsFound = 0;
-		for (int i = 0; i < nPoints; ++i)
+		for (auto p : points)
 		{
-			for (auto p : points)
+
+			bool inTheBox = true;
+
+			for (int d = 0; d < 3; ++d)
 			{
 
-				bool inTheBox = true;
+				inTheBox &= (p[d] <= maxPoints[i][d]
+						&& p[d] >= minPoints[i][d]);
 
-				for (int d = 0; d < 3; ++d)
-				{
-
-					inTheBox &= (p[d] <= maxPoints[i][d]
-							&& p[d] >= minPoints[i][d]);
-
-				}
-				pointsFound += inTheBox;
 			}
-
+			pointsFound += inTheBox;
 		}
 
-		std::chrono::steady_clock::time_point end_sequential =
-				std::chrono::steady_clock::now();
-		std::cout << "Sequential search algorithm took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_sequential - start_sequential).count() << "ms\n"
-						<< " found points: " << pointsFound
-						<< "\n******************************\n" << std::endl;
 	}
 
-	if (runOldKDTree)
+	std::chrono::steady_clock::time_point end_sequential =
+	std::chrono::steady_clock::now();
+	std::cout << "Sequential search algorithm took "
+	<< std::chrono::duration_cast < std::chrono::milliseconds
+	> (end_sequential - start_sequential).count() << "ms\n"
+	<< " found points: " << pointsFound
+	<< "\n******************************\n" << std::endl;
+}
+
+if (runOldKDTree)
+{
+
+	std::cout << "Vanilla CMSSW KDTree run will start in 1 second.\n"
+	<< std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::chrono::steady_clock::time_point start_building =
+	std::chrono::steady_clock::now();
+
+	KDTreeLinkerAlgo<unsigned, 3> vanilla_tree;
+	std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_nodes;
+	std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_founds;
+
+	std::array<float, 3> minpos
 	{
+		{	0.0f, 0.0f, 0.0f}}, maxpos
+	{
+		{	0.0f, 0.0f, 0.0f}};
 
-		std::cout << "Vanilla CMSSW KDTree run will start in 1 second.\n"
-				<< std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		std::chrono::steady_clock::time_point start_building =
-				std::chrono::steady_clock::now();
-
-		KDTreeLinkerAlgo<unsigned, 3> vanilla_tree;
-		std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_nodes;
-		std::vector<KDTreeNodeInfoT<unsigned, 3> > vanilla_founds;
-
-		std::array<float, 3> minpos
+	vanilla_tree.clear();
+	vanilla_founds.clear();
+	for (unsigned i = 0; i < nPoints; ++i)
+	{
+		float4 pos = cmssw_points[i];
+		vanilla_nodes.emplace_back(i, (float) pos.x, (float) pos.y,
+				(float) pos.z);
+		if (i == 0)
 		{
-		{ 0.0f, 0.0f, 0.0f } }, maxpos
+			minpos[0] = pos.x;
+			minpos[1] = pos.y;
+			minpos[2] = pos.z;
+			maxpos[0] = pos.x;
+			maxpos[1] = pos.y;
+			maxpos[2] = pos.z;
+		}
+		else
 		{
-		{ 0.0f, 0.0f, 0.0f } };
+			minpos[0] = std::min((float) pos.x, minpos[0]);
+			minpos[1] = std::min((float) pos.y, minpos[1]);
+			minpos[2] = std::min((float) pos.z, minpos[2]);
+			maxpos[0] = std::max((float) pos.x, maxpos[0]);
+			maxpos[1] = std::max((float) pos.y, maxpos[1]);
+			maxpos[2] = std::max((float) pos.z, maxpos[2]);
+		}
+	}
 
-		vanilla_tree.clear();
+	KDTreeCube cluster_bounds = KDTreeCube(minpos[0], maxpos[0], minpos[1],
+			maxpos[1], minpos[2], maxpos[2]);
+
+	vanilla_tree.build(vanilla_nodes, cluster_bounds);
+	std::chrono::steady_clock::time_point end_building =
+	std::chrono::steady_clock::now();
+	long int pointsFound = 0;
+	std::chrono::steady_clock::time_point start_searching =
+	std::chrono::steady_clock::now();
+	for (int i = 0; i < nPoints; ++i)
+	{
+		KDTreeCube kd_searchcube(minPoints[i][0], maxPoints[i][0],
+				minPoints[i][1], maxPoints[i][1], minPoints[i][2],
+				maxPoints[i][2]);
+		vanilla_tree.search(kd_searchcube, vanilla_founds);
+		pointsFound += vanilla_founds.size();
 		vanilla_founds.clear();
-		for (unsigned i = 0; i < nPoints; ++i)
-		{
-			float4 pos = cmssw_points[i];
-			vanilla_nodes.emplace_back(i, (float) pos.x, (float) pos.y,
-					(float) pos.z);
-			if (i == 0)
-			{
-				minpos[0] = pos.x;
-				minpos[1] = pos.y;
-				minpos[2] = pos.z;
-				maxpos[0] = pos.x;
-				maxpos[1] = pos.y;
-				maxpos[2] = pos.z;
-			}
-			else
-			{
-				minpos[0] = std::min((float) pos.x, minpos[0]);
-				minpos[1] = std::min((float) pos.y, minpos[1]);
-				minpos[2] = std::min((float) pos.z, minpos[2]);
-				maxpos[0] = std::max((float) pos.x, maxpos[0]);
-				maxpos[1] = std::max((float) pos.y, maxpos[1]);
-				maxpos[2] = std::max((float) pos.z, maxpos[2]);
-			}
-		}
-
-		KDTreeCube cluster_bounds = KDTreeCube(minpos[0], maxpos[0], minpos[1],
-				maxpos[1], minpos[2], maxpos[2]);
-
-		vanilla_tree.build(vanilla_nodes, cluster_bounds);
-		std::chrono::steady_clock::time_point end_building =
-				std::chrono::steady_clock::now();
-		long int pointsFound = 0;
-		std::chrono::steady_clock::time_point start_searching =
-				std::chrono::steady_clock::now();
-		for (int i = 0; i < nPoints; ++i)
-		{
-			KDTreeCube kd_searchcube(minPoints[i][0], maxPoints[i][0],
-					minPoints[i][1], maxPoints[i][1], minPoints[i][2],
-					maxPoints[i][2]);
-			vanilla_tree.search(kd_searchcube, vanilla_founds);
-			pointsFound += vanilla_founds.size();
-			vanilla_founds.clear();
-		}
-		std::chrono::steady_clock::time_point end_searching =
-				std::chrono::steady_clock::now();
-
-		std::cout << "building Vanilla CMSSW KDTree with " << nPoints
-				<< " points took " << std::chrono::duration_cast
-				< std::chrono::milliseconds
-				> (end_building - start_building).count() << "ms" << std::endl;
-		std::cout << "searching points using Vanilla CMSSW KDTree took "
-				<< std::chrono::duration_cast < std::chrono::milliseconds
-				> (end_searching - start_searching).count() << "ms"
-						<< std::endl;
-		std::cout << pointsFound
-				<< " points found using Vanilla CMSSW KDTree\n******************************\n"
-				<< std::endl;
-
-		delete[] cmssw_points;
 	}
-	return 0;
+	std::chrono::steady_clock::time_point end_searching =
+	std::chrono::steady_clock::now();
+
+	std::cout << "building Vanilla CMSSW KDTree with " << nPoints
+	<< " points took " << std::chrono::duration_cast
+	< std::chrono::milliseconds
+	> (end_building - start_building).count() << "ms" << std::endl;
+	std::cout << "searching points using Vanilla CMSSW KDTree took "
+	<< std::chrono::duration_cast < std::chrono::milliseconds
+	> (end_searching - start_searching).count() << "ms"
+	<< std::endl;
+	std::cout << pointsFound
+	<< " points found using Vanilla CMSSW KDTree\n******************************\n"
+	<< std::endl;
+
+	delete[] cmssw_points;
+}
+return 0;
 }
