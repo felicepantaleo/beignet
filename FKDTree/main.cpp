@@ -577,7 +577,7 @@ int main(int argc, char* argv[])
 //			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
 
 			tbb::parallel_for(0, nPoints, 1,
-					[&partial_results](int i)
+					[&](int i)
 					{
 
 						partial_results[i] =kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
