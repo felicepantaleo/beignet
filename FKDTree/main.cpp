@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
 
 	if (runFKDTree)
 	{
-		std::atomic<unsigned int> pointsFound = 0;
+		std::atomic<unsigned int> pointsFound(0);
 		std::cout << "FKDTree run will start in 1 second.\n" << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -428,7 +428,7 @@ int main(int argc, char* argv[])
 						int totalNumberOfPointsFound = 0;
 						for(int p = 0; p<nPoints; p++)
 						{
-							unsigned int length = host_results[p];
+							unsigned int length = result[p];
 							totalNumberOfPointsFound += length;
 							int firstIndex = nPoints + maxResultSize*p;
 
@@ -437,8 +437,6 @@ int main(int argc, char* argv[])
 						std::cout << "GPU using OpenCL found " << totalNumberOfPointsFound << " points." << std::endl;
 
 					}
-
-					std::cout << "GPU found " << totalNumberOfPointsFound << " points." << std::endl;
 
 					checkOclErrors(
 							clEnqueueUnmapMemObject(command_queue, d_dimensions_mem, d_dimensions, 0, NULL, NULL));
