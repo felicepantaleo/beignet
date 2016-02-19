@@ -578,7 +578,7 @@ int main(int argc, char* argv[])
 					[=](int i)
 					{
 
-						pointsFound +=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size;
+						pointsFound +=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
 					});
 			tbb::tick_count end_searching = tbb::tick_count::now();
 			std::cout << "searching points using FKDTree took "
