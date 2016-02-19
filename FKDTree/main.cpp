@@ -570,6 +570,8 @@ int main(int argc, char* argv[])
 		if (runTheTests)
 		{
 
+			std::vector<unsigned int> partial_results(nPoints,0);
+
 			tbb::tick_count start_searching = tbb::tick_count::now();
 //		for (int i = 0; i < nPoints; ++i)
 //			pointsFound+=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
@@ -578,7 +580,7 @@ int main(int argc, char* argv[])
 					[=](int i)
 					{
 
-						pointsFound +=kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
+						partial_results[i] =kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
 					});
 			tbb::tick_count end_searching = tbb::tick_count::now();
 			std::cout << "searching points using FKDTree took "
