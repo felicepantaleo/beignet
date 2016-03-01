@@ -99,6 +99,9 @@ template<class T>
 void FQueue<T>::push_back(const T & v)
 {
 	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
+	std::cout << "content before pushing" << std::endl;
+	for(int i =0; i< theSize; i++)
+		std::cout << this[i] << std::endl;
 	if(theSize >= theBuffer.capacity())
 	{
 		auto oldCapacity = theBuffer.capacity();
@@ -117,6 +120,10 @@ void FQueue<T>::push_back(const T & v)
 	theSize++;
 	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
 
+	std::cout << "content after pushing" << std::endl;
+	for(int i =0; i< theSize; i++)
+		std::cout << this[i] << std::endl;
+	std::cout << "\n\n" << std::endl;
 
 }
 
@@ -181,7 +188,7 @@ void FQueue<T>::clear()
 template <class T>
 void FQueue<T>::pop_front(const unsigned int numberOfElementsToPop)
 {
-	unsigned int elementsToErase = theSize - numberOfElementsToPop > 0 ? numberOfElementsToPop : theSize;
+	unsigned int elementsToErase = theSize  > numberOfElementsToPop ? numberOfElementsToPop : theSize;
 	theSize -=elementsToErase;
 	theFront = (theFront + elementsToErase) % theBuffer.capacity();
 }
