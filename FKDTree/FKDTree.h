@@ -207,8 +207,7 @@ public:
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
 //		std::deque<unsigned int> indecesToVisit;
-		FQueue<unsigned int> indecesToVisit;
-		indecesToVisit.resize(100);
+		FQueue<unsigned int> indecesToVisit(100);
 		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 
 		indecesToVisit.push_back(0);
