@@ -255,8 +255,6 @@ public:
 				}
 
 			}
-//			std::cout << "starting " <<numberOfIndecesToVisitThisDepth<< std::endl;
-//			std::cout << "finishing " <<numberOfIndecesToVisitThisDepth<< std::endl;
 
 			indecesToVisit.pop_front(numberOfIndecesToVisitThisDepth);
 		}
