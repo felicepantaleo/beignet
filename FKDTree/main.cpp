@@ -614,7 +614,8 @@ int main(int argc, char* argv[])
 			for (unsigned int iteration = 0; iteration < numberOfIterations;
 					++iteration)
 			{
-				tbb::parallel_for(0, nPoints, 1, [&](int i)
+//				tbb::parallel_for(0, nPoints, 1, [&](int i)
+				for(int i =0; i< nPoints; ++i)
 				{
 					kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
 				});
