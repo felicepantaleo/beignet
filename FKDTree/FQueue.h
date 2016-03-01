@@ -98,7 +98,7 @@ T& FQueue<T>::tail()
 template<class T>
 void FQueue<T>::push_back(const T & v)
 {
-	std::cout << "head and tail before pushing " << theFront << " " << theTail << std::endl;
+	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
 	if(theSize >= theBuffer.capacity())
 	{
 		auto oldCapacity = theBuffer.capacity();
@@ -115,7 +115,7 @@ void FQueue<T>::push_back(const T & v)
 	theBuffer.at(theTail) = v;
 	theTail = (theTail +1) % theBuffer.capacity();
 	theSize++;
-	std::cout << "head and tail after pushing " << theFront << " " << theTail << std::endl;
+	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
 
 
 }
