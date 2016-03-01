@@ -211,7 +211,7 @@ public:
 		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 
 		indecesToVisit.push_back(0);
-		std::cout << "hey!" << std::endl;
+
 		for (int depth = 0; depth < theDepth + 1; ++depth)
 		{
 

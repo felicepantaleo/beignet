@@ -100,6 +100,7 @@ void FQueue<T>::push_back(const T & v)
 {
 	if(theSize >= theBuffer.capacity())
 	{
+		std::cout<< "need to resize the array" <<std::endl;
 		auto oldCapacity = theBuffer.capacity();
 		theBuffer.resize(2*oldCapacity);
 		if(theFront != 0)
@@ -107,6 +108,8 @@ void FQueue<T>::push_back(const T & v)
 			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin()+oldCapacity);
 			theTail += oldCapacity;
 		}
+		std::cout<< "not crashed" <<std::endl;
+
 	}
 
 	theBuffer[theTail] = v;
