@@ -98,10 +98,10 @@ T& FQueue<T>::tail()
 template<class T>
 void FQueue<T>::push_back(const T & v)
 {
-	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
-	std::cout << "content before pushing" << std::endl;
-	for(int i =0; i< theSize; i++)
-		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity()) << std::endl;
+//	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
+//	std::cout << "content before pushing" << std::endl;
+//	for(int i =0; i< theSize; i++)
+//		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity()) << std::endl;
 	if(theSize >= theBuffer.capacity())
 	{
 		auto oldCapacity = theBuffer.capacity();
@@ -112,19 +112,19 @@ void FQueue<T>::push_back(const T & v)
 		}
 		theTail += oldCapacity;
 
-		std::cout << "resized" << std::endl;
+//		std::cout << "resized" << std::endl;
 	}
 
 
 	theBuffer.at(theTail) = v;
 	theTail = (theTail +1) % theBuffer.capacity();
 	theSize++;
-	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
-
-	std::cout << "content after pushing" << std::endl;
-	for(int i =0; i< theSize; i++)
-		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity()) << std::endl;
-	std::cout << "\n\n" << std::endl;
+//	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
+//
+//	std::cout << "content after pushing" << std::endl;
+//	for(int i =0; i< theSize; i++)
+//		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity()) << std::endl;
+//	std::cout << "\n\n" << std::endl;
 
 }
 
