@@ -116,7 +116,7 @@ void FQueue<T>::push_back(const T & v)
 	}
 
 
-	theBuffer.at(theTail) = v;
+	theBuffer[theTail] = v;
 	theTail = (theTail +1) % theBuffer.capacity();
 	theSize++;
 //	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
@@ -161,7 +161,7 @@ void FQueue<T>::resize(unsigned int capacity)
 template<class T>
 T& FQueue<T>::operator[](unsigned int index)
 {
-    return theBuffer.at((theFront + index)%theBuffer.capacity());
+    return theBuffer[(theFront + index)%theBuffer.capacity()];
 }
 
 template<class T>
