@@ -98,21 +98,24 @@ T& FQueue<T>::tail()
 template<class T>
 void FQueue<T>::push_back(const T & v)
 {
+	std::cout << "head and tail before pushing " << theFront << " " << theTail << std::endl;
 	if(theSize >= theBuffer.capacity())
 	{
 		auto oldCapacity = theBuffer.capacity();
 		theBuffer.resize(2*oldCapacity);
 		if(theFront != 0)
 		{
-			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin()+oldCapacity);
+			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin() + oldCapacity);
 			theTail += oldCapacity;
 		}
+		std::cout << "resized" << std::endl;
 	}
 
 
 	theBuffer.at(theTail) = v;
 	theTail = (theTail +1) % theBuffer.capacity();
 	theSize++;
+	std::cout << "head and tail after pushing " << theFront << " " << theTail << std::endl;
 
 
 }
