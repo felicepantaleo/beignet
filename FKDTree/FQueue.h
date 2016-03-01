@@ -25,7 +25,7 @@ public:
     T & tail();
     void push_back(const T & value);
     void pop_front();
-    void pop_front(const unsigned int numberOfElementsToPop)
+    void pop_front(const unsigned int numberOfElementsToPop);
 
     void reserve(unsigned int capacity);
     void resize(unsigned int capacity);
