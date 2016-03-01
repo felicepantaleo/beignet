@@ -98,6 +98,7 @@ T& FQueue<T>::tail()
 template<class T>
 void FQueue<T>::push_back(const T & v)
 {
+	bool debug = false;
 	if(theSize >= theBuffer.capacity())
 	{
 		std::cout<< "need to resize the array" <<std::endl;
@@ -108,13 +109,16 @@ void FQueue<T>::push_back(const T & v)
 			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin()+oldCapacity);
 			theTail += oldCapacity;
 		}
-		std::cout<< "not crashed" <<std::endl;
-
+		debug = true;
 	}
 
-	theBuffer[theTail] = v;
+
+	theBuffer.at(theTail) = v;
 	theTail = (theTail +1) % theBuffer.capacity();
 	theSize++;
+	if(debug)
+		std::cout<< "not crashed" <<std::endl;
+
 }
 
 template<class T>
