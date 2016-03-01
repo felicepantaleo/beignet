@@ -154,7 +154,7 @@ void FQueue<T>::resize(unsigned int capacity)
 template<class T>
 T& FQueue<T>::operator[](unsigned int index)
 {
-    return theBuffer[theFront + index];
+    return theBuffer.at(theFront + index);
 }
 
 template<class T>
