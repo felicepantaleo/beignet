@@ -18,6 +18,7 @@
 #include <cassert>
 
 #include "KDPoint.h"
+#include "FQueue.h"
 template<class TYPE, int numberOfDimensions>
 class FKDTree
 {

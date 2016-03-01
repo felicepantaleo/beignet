@@ -38,6 +38,7 @@ private:
     unsigned int theFront;
     unsigned int theTail;
     std::vector<T> theBuffer;
+
 };
 
 // Your code goes here ...
