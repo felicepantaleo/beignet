@@ -109,8 +109,9 @@ void FQueue<T>::push_back(const T & v)
 		if(theFront != 0)
 		{
 			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin() + oldCapacity);
-			theTail += oldCapacity;
 		}
+		theTail += oldCapacity;
+
 		std::cout << "resized" << std::endl;
 	}
 
