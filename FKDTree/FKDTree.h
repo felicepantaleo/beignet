@@ -202,13 +202,13 @@ public:
 		return inTheBox;
 	}
 
-	std::vector<KDPoint<TYPE, numberOfDimensions> > search_in_the_box(
+	std::vector<unsigned int>  search_in_the_box(
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
 //		std::deque<unsigned int> indecesToVisit;
 		FQueue<unsigned int> indecesToVisit(1000);
-		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
+		std::vector<unsigned int> result;
 
 		indecesToVisit.push_back(0);
 
@@ -229,7 +229,7 @@ public:
 						dimension);
 
 				if (intersection && isInTheBox(index, minPoint, maxPoint))
-					result.push_back(getPoint(index));
+					result.push_back(index);
 
 				bool isLowerThanBoxMin = theDimensions[dimension][index]
 						< minPoint[dimension];
