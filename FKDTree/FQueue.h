@@ -101,7 +101,7 @@ void FQueue<T>::push_back(const T & v)
 	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
 	std::cout << "content before pushing" << std::endl;
 	for(int i =0; i< theSize; i++)
-		std::cout << this[i] << std::endl;
+		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity) << std::endl;
 	if(theSize >= theBuffer.capacity())
 	{
 		auto oldCapacity = theBuffer.capacity();
@@ -122,7 +122,7 @@ void FQueue<T>::push_back(const T & v)
 
 	std::cout << "content after pushing" << std::endl;
 	for(int i =0; i< theSize; i++)
-		std::cout << this[i] << std::endl;
+		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity) << std::endl;
 	std::cout << "\n\n" << std::endl;
 
 }
