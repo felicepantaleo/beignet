@@ -223,6 +223,7 @@ public:
 					visitedIndecesThisDepth++)
 			{
 
+				std::cout << visitedIndecesThisDepth << " " << numberOfIndecesToVisitThisDepth << " " << indecesToVisit.size() << std::endl;
 				unsigned int index = indecesToVisit[visitedIndecesThisDepth];
 //				assert(index >= 0 && index < theNumberOfPoints);
 				bool intersection = intersects(index, minPoint, maxPoint,
