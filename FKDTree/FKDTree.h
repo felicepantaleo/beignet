@@ -206,7 +206,9 @@ public:
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
-		std::deque<unsigned int> indecesToVisit;
+//		std::deque<unsigned int> indecesToVisit;
+		FQueue<unsigned int> indecesToVisit;
+		indecesToVisit.resize(100);
 		std::vector<KDPoint<TYPE, numberOfDimensions> > result;
 
 		indecesToVisit.push_back(0);
@@ -257,8 +259,7 @@ public:
 //			std::cout << "starting " <<numberOfIndecesToVisitThisDepth<< std::endl;
 //			std::cout << "finishing " <<numberOfIndecesToVisitThisDepth<< std::endl;
 
-			indecesToVisit.erase(indecesToVisit.begin(),
-					indecesToVisit.begin() + numberOfIndecesToVisitThisDepth);
+			indecesToVisit.pop_front(numberOfIndecesToVisitThisDepth);
 		}
 		return result;
 	}
