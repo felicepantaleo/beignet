@@ -615,10 +615,11 @@ int main(int argc, char* argv[])
 					++iteration)
 			{
 //				tbb::parallel_for(0, nPoints, 1, [&](int i)
-				for(int i =0; i< nPoints; ++i)
+				for (int i = 0; i < nPoints; ++i)
 				{
 					kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
-				});
+//				});
+				}
 			}
 			tbb::tick_count end_searching = tbb::tick_count::now();
 			std::cout << "searching points using FKDTree took "
