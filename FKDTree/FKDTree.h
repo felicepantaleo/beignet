@@ -369,4 +369,5 @@ bool FKDTree<TYPE,numberOfDimensions>::isInTheBox(unsigned int index,
 
 	return inTheBox;
 }
+
 #endif /* FKDTREE_FKDTREE_H_ */

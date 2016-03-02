@@ -166,9 +166,9 @@ int main(int argc, char* argv[])
 	std::vector<KDPoint<float, 3> > minPoints;
 	std::vector<KDPoint<float, 3> > maxPoints;
 
-	float range_x = 0.2;
-	float range_y = 0.2;
-	float range_z = 0.2;
+	float range_x = 0.51;
+	float range_y = 0.51;
+	float range_z = 0.51;
 
 	KDPoint<float, 3> minPoint(0, 1, 8);
 	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
