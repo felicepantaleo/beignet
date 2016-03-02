@@ -103,22 +103,35 @@ void FQueue<T>::push_back(const T & v)
 //	std::cout << "content before pushing" << std::endl;
 //	for(int i =0; i< theSize; i++)
 //		std::cout << theBuffer.at((theFront+i)%theBuffer.capacity()) << std::endl;
-	if(theSize >= theBuffer.capacity())
+	if(theSize >= theBuffer.size())
 	{
-		auto oldCapacity = theBuffer.capacity();
-		theBuffer.resize(2*oldCapacity);
+		auto oldCapacity = theBuffer.size();
+		auto oldTail = theTail;
+		theBuffer.reserve(oldCapacity + theTail);
+
 		if(theFront != 0)
 		{
-			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin() + oldCapacity);
+//			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin() + oldCapacity);
+			for(int i = 0; i< theTail; ++i)
+			{
+				theBuffer.push_back(theBuffer.at(i));
+			}
+			theTail =0;
+
 		}
-		theTail += oldCapacity;
+		else
+		{
+			theBuffer.resize(oldCapacity+16);
+			theTail += oldCapacity;
+		}
+//		theTail += oldCapacity;
 
 //		std::cout << "resized" << std::endl;
 	}
 
 
 	theBuffer[theTail] = v;
-	theTail = (theTail +1) % theBuffer.capacity();
+	theTail = (theTail +1) % theBuffer.size();
 	theSize++;
 //	std::cout << "head and tail after pushing " << theFront << " " << theTail << " " << theSize << std::endl;
 //
@@ -134,7 +147,7 @@ void FQueue<T>::pop_front()
 {
 	if(theSize>0)
 	{
-		theFront = (theFront + 1) % theBuffer.capacity();
+		theFront = (theFront + 1) % theBuffer.size();
 		theSize--;
 	}
 }
@@ -162,7 +175,7 @@ void FQueue<T>::resize(unsigned int capacity)
 template<class T>
 T& FQueue<T>::operator[](unsigned int index)
 {
-    return theBuffer[(theFront + index)%theBuffer.capacity()];
+    return theBuffer[(theFront + index)%theBuffer.size()];
 }
 
 template<class T>
@@ -192,7 +205,7 @@ void FQueue<T>::pop_front(const unsigned int numberOfElementsToPop)
 {
 	unsigned int elementsToErase = theSize  > numberOfElementsToPop ? numberOfElementsToPop : theSize;
 	theSize -=elementsToErase;
-	theFront = (theFront + elementsToErase) % theBuffer.capacity();
+	theFront = (theFront + elementsToErase) % theBuffer.size();
 }
 
 
