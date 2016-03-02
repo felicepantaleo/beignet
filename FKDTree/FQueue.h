@@ -114,7 +114,7 @@ void FQueue<T>::push_back(const T & v)
 //			std::copy(theBuffer.begin(), theBuffer.begin() + theTail, theBuffer.begin() + oldCapacity);
 			for(int i = 0; i< theTail; ++i)
 			{
-				theBuffer.push_back(theBuffer.at(i));
+				theBuffer.push_back(theBuffer[i]);
 			}
 			theTail =0;
 

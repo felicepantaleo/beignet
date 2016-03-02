@@ -165,19 +165,19 @@ public:
 
 	}
 
-	inline
+
 	unsigned int leftSonIndex(unsigned int index) const
 	{
 		return 2 * index + 1;
 	}
 
-	inline
+
 	unsigned int rightSonIndex(unsigned int index) const
 	{
 		return 2 * index + 2;
 	}
 
-	inline
+
 	bool intersects(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint,
@@ -187,7 +187,7 @@ public:
 				&& theDimensions[dimension][index] >= minPoint[dimension]);
 	}
 
-	inline
+
 	bool isInTheBox(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
@@ -288,7 +288,6 @@ private:
 
 
 template<class TYPE, int numberOfDimensions>
-inline
 std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
