@@ -291,8 +291,8 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 {
-	//		std::deque<unsigned int> indecesToVisit;
-	FQueue<unsigned int> indecesToVisit(256);
+			std::deque<unsigned int> indecesToVisit;
+//	FQueue<unsigned int> indecesToVisit(256);
 	std::vector<unsigned int> result;
 	result.reserve(64);
 	indecesToVisit.push_back(0);
@@ -341,9 +341,9 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 
 		}
 
-		indecesToVisit.pop_front(numberOfIndecesToVisitThisDepth);
-		//			indecesToVisit.erase(indecesToVisit.begin(),
-		//					indecesToVisit.begin() + numberOfIndecesToVisitThisDepth);
+//		indecesToVisit.pop_front(numberOfIndecesToVisitThisDepth);
+					indecesToVisit.erase(indecesToVisit.begin(),
+							indecesToVisit.begin() + numberOfIndecesToVisitThisDepth);
 	}
 	return result;
 }
