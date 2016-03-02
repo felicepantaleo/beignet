@@ -155,9 +155,6 @@ public:
 	}
 	void build();
 private:
-	bool isInTheBox(unsigned int index,
-			const KDPoint<TYPE, numberOfDimensions>& minPoint,
-			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const;
 
 	unsigned int partition_complete_kdtree(unsigned int length)
 	{
