@@ -292,9 +292,9 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 {
 //			std::deque<unsigned int> indecesToVisit;
-	FQueue<unsigned int> indecesToVisit(256);
+	FQueue<unsigned int> indecesToVisit(128);
 	std::vector<unsigned int> result;
-	result.reserve(64);
+	result.reserve(40);
 	indecesToVisit.push_back(0);
 
 	for (int depth = 0; depth < theDepth + 1; ++depth)
