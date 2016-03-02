@@ -153,7 +153,7 @@ public:
 	{
 		return theIds;
 	}
-	void FKDTree<TYPE,numberOfDimensions>::build();
+	void build();
 private:
 	bool isInTheBox(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
@@ -172,13 +172,13 @@ private:
 
 	}
 
-	unsigned int FKDTree<TYPE,numberOfDimensions>::leftSonIndex(unsigned int index) const;
-	unsigned int FKDTree<TYPE,numberOfDimensions>::rightSonIndex(unsigned int index) const;
-	bool FKDTree<TYPE,numberOfDimensions>::intersects(unsigned int index,
+	unsigned int leftSonIndex(unsigned int index) const;
+	unsigned int rightSonIndex(unsigned int index) const;
+	bool intersects(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint,
 			int dimension) const;
-	bool FKDTree<TYPE,numberOfDimensions>::isInTheBox(unsigned int index,
+	bool isInTheBox(unsigned int index,
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const;
 	long int theNumberOfPoints;
