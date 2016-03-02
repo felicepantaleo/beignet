@@ -58,6 +58,7 @@ public:
 	{
 
 		thePoints.push_back(point);
+#pragma unroll
 		for (int i = 0; i < numberOfDimensions; ++i)
 			theDimensions.at(i).push_back(point[i]);
 		theIds.push_back(point.getId());
@@ -359,6 +360,7 @@ bool FKDTree<TYPE,numberOfDimensions>::isInTheBox(unsigned int index,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 {
 	bool inTheBox = true;
+#pragma unroll
 	for (int i = 0; i < numberOfDimensions; ++i)
 	{
 		inTheBox &= (theDimensions[i][index] <= maxPoint[i]
