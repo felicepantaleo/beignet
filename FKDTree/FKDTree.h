@@ -286,7 +286,9 @@ private:
 
 };
 
+
 template<class TYPE, int numberOfDimensions>
+inline
 std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
