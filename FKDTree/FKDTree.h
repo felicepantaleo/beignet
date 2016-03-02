@@ -202,7 +202,7 @@ public:
 		return inTheBox;
 	}
 
-	std::vector<unsigned int>  search_in_the_box(
+inline	std::vector<unsigned int>  search_in_the_box(
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
