@@ -203,8 +203,8 @@ public:
 	}
 
 	std::vector<unsigned int> search_in_the_box(
-			const KDPoint<TYPE, numberOfDimensions>& minPoint,
-			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const;
+			const KDPoint<TYPE, numberOfDimensions>& ,
+			const KDPoint<TYPE, numberOfDimensions>& ) const;
 
 	bool test_correct_build(unsigned int index = 0, int dimension = 0) const
 	{
@@ -286,7 +286,7 @@ private:
 
 };
 
-
+template<class TYPE, int numberOfDimensions>
 std::vector<unsigned int> FKDTree::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
