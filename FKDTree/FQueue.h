@@ -97,7 +97,6 @@ T& FQueue<T>::tail()
 
 
 template<class T>
-inline
 void FQueue<T>::push_back(const T & v)
 {
 //	std::cout << "head tail and size before pushing " << theFront << " " << theTail << " " << theSize << std::endl;
@@ -131,7 +130,6 @@ void FQueue<T>::push_back(const T & v)
 }
 
 template<class T>
-inline
 void FQueue<T>::pop_front()
 {
 	if(theSize>0)
@@ -142,21 +140,18 @@ void FQueue<T>::pop_front()
 }
 
 template<class T>
-inline
 void FQueue<T>::reserve(unsigned int capacity)
 {
 	theBuffer.reserve(capacity);
 }
 
 template<class T>
-inline
 unsigned int FQueue<T>::size()const//
 {
     return theSize;
 }
 
 template<class T>
-inline
 void FQueue<T>::resize(unsigned int capacity)
 {
     theBuffer.resize(capacity);

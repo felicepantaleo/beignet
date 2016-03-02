@@ -202,14 +202,14 @@ public:
 		return inTheBox;
 	}
 
-inline	std::vector<unsigned int>  search_in_the_box(
+std::vector<unsigned int>  search_in_the_box(
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
 //		std::deque<unsigned int> indecesToVisit;
-		FQueue<unsigned int> indecesToVisit(1000);
+		FQueue<unsigned int> indecesToVisit(256);
 		std::vector<unsigned int> result;
-
+		result.reserve(64);
 		indecesToVisit.push_back(0);
 
 		for (int depth = 0; depth < theDepth + 1; ++depth)
