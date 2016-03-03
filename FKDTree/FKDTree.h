@@ -118,7 +118,6 @@ public:
 		return *this;
 
 	}
-	~FKDTree();
 
 	void push_back(const KDPoint<TYPE, numberOfDimensions>& point)
 	{
