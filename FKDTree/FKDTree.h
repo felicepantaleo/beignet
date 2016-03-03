@@ -19,6 +19,8 @@
 
 #include "KDPoint.h"
 #include "FQueue.h"
+
+
 template<class TYPE, int numberOfDimensions>
 class FKDTree
 {
@@ -29,7 +31,6 @@ public:
 	{
 		theNumberOfPoints = nPoints;
 		theDepth = std::floor(log2(nPoints));
-		theMaxNumberOfNodes = (1 << (theDepth + 1)) - 1;
 		for (auto& x : theDimensions)
 			x.resize(theNumberOfPoints);
 		theIntervalLength.resize(theNumberOfPoints, 0);
@@ -44,7 +45,6 @@ public:
 	{
 		theNumberOfPoints = nPoints;
 		theDepth = std::floor(log2(nPoints));
-		theMaxNumberOfNodes = (1 << (theDepth + 1)) - 1;
 		for (auto& x : theDimensions)
 			x.resize(theNumberOfPoints);
 		theIntervalLength.resize(theNumberOfPoints, 0);
@@ -54,7 +54,84 @@ public:
 
 	}
 
+
+	FKDTree()
+	{
+		theNumberOfPoints = 0;
+		theDepth = 0;
+		for (auto& x : theDimensions)
+			x.clear();
+		theIntervalLength.clear();
+		theIntervalMin.clear();
+		theIds.clear();
+		thePoints.clear();
+	}
+
+	FKDTree(unsigned int capacity);
+
+	FKDTree(const FKDTree<TYPE, numberOfDimensions>& v);
+
+	FKDTree(FKDTree<TYPE, numberOfDimensions> && other)
+	{
+		theNumberOfPoints(std::move(other.theNumberOfPoints));
+		theDepth(std::move(other.theDepth));
+
+		theIntervalLength.clear();
+		theIntervalMin.clear();
+		theIds.clear();
+		thePoints.clear();
+		for (auto& x : theDimensions)
+			x.clear();
+
+		theIntervalLength = std::move(other.theIntervalLength);
+		theIntervalMin = std::move(other.theIntervalMin);
+		theIds = std::move(other.theIds);
+
+		thePoints = std::move(other.thePoints);
+		for (int i =0; i< numberOfDimensions; ++i)
+			theDimensions = std::move(other.theDimensions);
+	}
+
+	FKDTree<TYPE, numberOfDimensions>& operator=(FKDTree<TYPE, numberOfDimensions>&& other)
+	{
+
+		if (this != &other)
+		{
+			theNumberOfPoints(std::move(other.theNumberOfPoints));
+			theDepth(std::move(other.theDepth));
+
+			theIntervalLength.clear();
+			theIntervalMin.clear();
+			theIds.clear();
+			thePoints.clear();
+			for (auto& x : theDimensions)
+				x.clear();
+
+			theIntervalLength = std::move(other.theIntervalLength);
+			theIntervalMin = std::move(other.theIntervalMin);
+			theIds = std::move(other.theIds);
+
+			thePoints = std::move(other.thePoints);
+			for (int i =0; i< numberOfDimensions; ++i)
+				theDimensions = std::move(other.theDimensions);
+		}
+		return *this;
+
+	}
+	~FKDTree();
+
 	void push_back(const KDPoint<TYPE, numberOfDimensions>& point)
+	{
+
+		thePoints.push_back(point);
+#pragma unroll
+		for (int i = 0; i < numberOfDimensions; ++i)
+			theDimensions.at(i).push_back(point[i]);
+		theIds.push_back(point.getId());
+	}
+
+
+	void push_back(KDPoint<TYPE, numberOfDimensions>&& point)
 	{
 
 		thePoints.push_back(point);
@@ -181,7 +258,6 @@ private:
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const;
 	long int theNumberOfPoints;
 	int theDepth;
-	long int theMaxNumberOfNodes;
 	std::vector<KDPoint<TYPE, numberOfDimensions> > thePoints;
 	std::array<std::vector<TYPE>, numberOfDimensions> theDimensions;
 	std::vector<unsigned int> theIntervalLength;
