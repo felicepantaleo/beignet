@@ -170,8 +170,8 @@ int main(int argc, char* argv[])
 	float range_y = 0.51;
 	float range_z = 0.51;
 
-	KDPoint<float, 3> minPoint(0, 1, 8);
-	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
+//	KDPoint<float, 3> minPoint(0, 1, 8);
+//	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
 	for (int i = 0; i < nPoints; ++i)
 	{
 		float x = static_cast<float>(rand())
@@ -182,13 +182,13 @@ int main(int argc, char* argv[])
 		;
 		float z = static_cast<float>(rand())
 				/ (static_cast<float>(RAND_MAX / 10.1));
-		KDPoint<float, 3> Point(x, y, z);
-		Point.setId(i);
 
-		points.push_back(Point);
-		KDPoint<float, 3> m(x - range_x, y - range_y, z - range_z);
+
+
+		points.push_back(make_KDPoint(x, y, z, i));
+		KDPoint<float, 3> m(x - range_x, y - range_y, z - range_z,0);
 		minPoints.push_back(m);
-		KDPoint<float, 3> M(x + range_x, y + range_y, z + range_z);
+		KDPoint<float, 3> M(x + range_x, y + range_y, z + range_z,0);
 		maxPoints.push_back(M);
 
 	}

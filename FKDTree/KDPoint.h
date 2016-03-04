@@ -25,33 +25,65 @@ public:
 	}
 
 
-//	KDPoint(KDPoint< TYPE, numberOfDimensions >&& otherPoint)
-//	{
-//		*this = std::move(otherPoint);
-//	}
+	KDPoint(KDPoint<TYPE, numberOfDimensions> && other)
+	{
+		theId = std::move(other.theId);
+		theElements = std::move(other.theElements);
+
+	}
+
+	KDPoint(KDPoint<TYPE, numberOfDimensions> && other)
+	{
+		theId = std::move(other.theId);
+		theElements = std::move(other.theElements);
+
+	}
+
+	KDPoint<TYPE, numberOfDimensions>& operator=(KDPoint<TYPE, numberOfDimensions>&& other)
+	{
+
+		if (this != &other)
+		{
+			theId=std::move(other.theId);
+			theElements=std::move(other.theElements);
+		}
+		return *this;
+	}
 
 
-	KDPoint( TYPE x, TYPE y)
+	template<class T>
+	KDPoint<TYPE, numberOfDimensions> & operator =(const KDPoint<TYPE, numberOfDimensions> & other)
+	{
+		if (this != &other)
+		{
+			theId=other.theId;
+			theElements=other.theElements;
+		}
+		return *this;
+
+	}
+
+	KDPoint( TYPE x, TYPE y, unsigned int id)
     {
         static_assert( numberOfDimensions == 2, "Point dimensionality differs from the number of passed arguments." );
-        theId= 0;
+        theId= id;
         theElements[0] = x;
         theElements[1] = y;
     }
 
-	KDPoint( TYPE x, TYPE y, TYPE z )
+	KDPoint( TYPE x, TYPE y, TYPE z , unsigned int id)
     {
         static_assert( numberOfDimensions == 3, "Point dimensionality differs from the number of passed arguments." );
-        theId= 0;
+        theId= id;
         theElements[0] = x;
         theElements[1] = y;
         theElements[2] = z;
     }
 
-	KDPoint( TYPE x, TYPE y, TYPE z, TYPE w)
+	KDPoint( TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id)
     {
         static_assert( numberOfDimensions == 4, "Point dimensionality differs from the number of passed arguments." );
-        theId= 0;
+        theId= id;
         theElements[0] = x;
         theElements[1] = y;
         theElements[2] = z;
@@ -80,11 +112,9 @@ public:
     }
 
 
-    long int getId () const
+    unsigned int getId () const
     {
     	return theId;
-
-
     }
 
     void print()
@@ -96,47 +126,49 @@ public:
     	}
     }
 
-
-
 private:
     std::array< TYPE, numberOfDimensions > theElements;
-    long int theId;
+    unsigned int theId;
 };
 
 
 /* Utility functions to create 1-, 2-, 3-, or 4-Points from values. */
 template <typename TYPE>
-KDPoint<TYPE, 1> make_KDPoint(TYPE x) {
+KDPoint<TYPE, 1> make_KDPoint(TYPE x, unsigned int id) {
   KDPoint<TYPE, 1> result;
   result.setDimension(0,x);
+  result.setId(id);
   return result;
 }
 
 template <typename TYPE>
-KDPoint<TYPE, 2> make_KDPoint(TYPE x, TYPE y) {
+KDPoint<TYPE, 2> make_KDPoint(TYPE x, TYPE y, unsigned int id) {
   KDPoint<TYPE, 2> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
+  result.setId(id);
   return result;
 }
 
 
 template <typename TYPE>
-KDPoint<TYPE, 3> make_KDPoint(TYPE x, TYPE y, TYPE z) {
+KDPoint<TYPE, 3> make_KDPoint(TYPE x, TYPE y, TYPE z, unsigned int id) {
   KDPoint<TYPE, 3> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
   result.setDimension(2,z);
+  result.setId(id);
   return result;
 }
 
 template <typename TYPE>
-KDPoint<TYPE, 4> make_KDPoint(TYPE x, TYPE y, TYPE z, TYPE w) {
+KDPoint<TYPE, 4> make_KDPoint(TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id) {
   KDPoint<TYPE, 4> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
   result.setDimension(2,z);
   result.setDimension(3,w);
+  result.setId(id);
   return result;
 }
 
