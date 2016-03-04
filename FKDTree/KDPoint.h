@@ -45,7 +45,7 @@ public:
 
 
 	template<class T>
-	KDPoint<TYPE, numberOfDimensions> & operator =(const KDPoint<TYPE, numberOfDimensions> & other)
+	KDPoint<TYPE, numberOfDimensions> & operator=(const KDPoint<TYPE, numberOfDimensions> & other)
 	{
 		if (this != &other)
 		{
