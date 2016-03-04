@@ -32,16 +32,16 @@ public:
 	}
 
 
-	KDPoint<TYPE, numberOfDimensions>& operator=(KDPoint<TYPE, numberOfDimensions>&& other)
-	{
-
-		if (this != &other)
-		{
-			theId=std::move(other.theId);
-			theElements=std::move(other.theElements);
-		}
-		return *this;
-	}
+//	KDPoint<TYPE, numberOfDimensions>& operator=(KDPoint<TYPE, numberOfDimensions>&& other)
+//	{
+//
+//		if (this != &other)
+//		{
+//			theId=std::move(other.theId);
+//			theElements=std::move(other.theElements);
+//		}
+//		return *this;
+//	}
 
 
 	template<class T>
