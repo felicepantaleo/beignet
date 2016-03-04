@@ -25,11 +25,11 @@ public:
 	}
 
 
-	KDPoint(KDPoint<TYPE, numberOfDimensions> && other):
-	theId(std::move(other.theId)), theElements(std::move(other.theElements))
-	{
-
-	}
+//	KDPoint(KDPoint<TYPE, numberOfDimensions> && other):
+//	theId(std::move(other.theId)), theElements(std::move(other.theElements))
+//	{
+//
+//	}
 
 
 //	KDPoint<TYPE, numberOfDimensions>& operator=(KDPoint<TYPE, numberOfDimensions>&& other)
