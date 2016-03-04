@@ -14,21 +14,20 @@
 
 template<class TYPE, int numberOfDimensions>
 class KDPoint {
+
 public:
 	KDPoint(): theElements(), theId(0) {}
 
-	KDPoint(const KDPoint< TYPE, numberOfDimensions >& otherPoint)
+	KDPoint(const KDPoint< TYPE, numberOfDimensions >& other):
+	theId(other.theId), theElements(other.theElements)
 	{
-		theId = otherPoint.getId();
-		for(int i=0; i<numberOfDimensions; ++i)
-			theElements[i] = otherPoint[i];
+
 	}
 
 
-	KDPoint(KDPoint<TYPE, numberOfDimensions> && other)
+	KDPoint(KDPoint<TYPE, numberOfDimensions> && other):
+	theId(std::move(other.theId)), theElements(std::move(other.theElements))
 	{
-		theId = std::move(other.theId);
-		theElements = std::move(other.theElements);
 
 	}
 
