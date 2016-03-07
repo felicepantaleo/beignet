@@ -218,7 +218,7 @@ public:
 	{
 		for(unsigned int i= 0; i<theNumberOfPoints; ++i)
 		{
-			if(std::find(foundPoints.begin(), foundPoints.end(), i)!=foundPoints.end())
+			if(std::find(foundPoints.begin(), foundPoints.end(), thePoints[i].theId)!=foundPoints.end())
 			{
 				bool inTheBox = true;
 				for (int dim = 0; dim < numberOfDimensions; ++dim)
@@ -229,10 +229,8 @@ public:
 
 				if(!inTheBox)
 				{
-					std::cerr << "Point " << i << " was wrongly found to be in the box." << std::endl;
-					thePoints[i].print();
-					minPoint.print();
-					maxPoint.print();
+					std::cerr << "Point " << thePoints[i].theId << " was wrongly found to be in the box." << std::endl;
+
 
 					return false;
 
@@ -249,11 +247,8 @@ public:
 
 				if(inTheBox)
 				{
-					std::cerr << "Point " << i << " was wrongly found to be outside the box." << std::endl;
-					thePoints[i].print();
-					minPoint.print();
-					maxPoint.print();
-					return false;
+					std::cerr << "Point " << thePoints[i].theId << " was wrongly found to be outside the box." << std::endl;
+
 
 				}
 
