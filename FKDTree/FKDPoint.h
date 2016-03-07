@@ -1,5 +1,5 @@
 /*
- * FKDPoint.h
+ * FFKDPoint.h
  *
  *  Created on: Feb 10, 2016
  *      Author: fpantale
@@ -13,26 +13,26 @@
 
 
 template<class TYPE, int numberOfDimensions>
-class KDPoint {
+class FKDPoint {
 
 public:
-	KDPoint(): theElements(), theId(0) {}
+	FKDPoint(): theElements(), theId(0) {}
 
-	KDPoint(const KDPoint< TYPE, numberOfDimensions >& other):
+	FKDPoint(const FKDPoint< TYPE, numberOfDimensions >& other):
 	theId(other.theId), theElements(other.theElements)
 	{
 
 	}
 
 
-//	KDPoint(KDPoint<TYPE, numberOfDimensions> && other):
+//	FKDPoint(FKDPoint<TYPE, numberOfDimensions> && other):
 //	theId(std::move(other.theId)), theElements(std::move(other.theElements))
 //	{
 //
 //	}
 
 
-//	KDPoint<TYPE, numberOfDimensions>& operator=(KDPoint<TYPE, numberOfDimensions>&& other)
+//	FKDPoint<TYPE, numberOfDimensions>& operator=(FKDPoint<TYPE, numberOfDimensions>&& other)
 //	{
 //
 //		if (this != &other)
@@ -45,7 +45,7 @@ public:
 
 
 	template<class T>
-	KDPoint<TYPE, numberOfDimensions> & operator=(const KDPoint<TYPE, numberOfDimensions> & other)
+	FKDPoint<TYPE, numberOfDimensions> & operator=(const FKDPoint<TYPE, numberOfDimensions> & other)
 	{
 		if (this != &other)
 		{
@@ -56,7 +56,7 @@ public:
 
 	}
 
-	KDPoint( TYPE x, TYPE y, unsigned int id)
+	FKDPoint( TYPE x, TYPE y, unsigned int id)
     {
         static_assert( numberOfDimensions == 2, "Point dimensionality differs from the number of passed arguments." );
         theId= id;
@@ -64,7 +64,7 @@ public:
         theElements[1] = y;
     }
 
-	KDPoint( TYPE x, TYPE y, TYPE z , unsigned int id)
+	FKDPoint( TYPE x, TYPE y, TYPE z , unsigned int id)
     {
         static_assert( numberOfDimensions == 3, "Point dimensionality differs from the number of passed arguments." );
         theId= id;
@@ -73,7 +73,7 @@ public:
         theElements[2] = z;
     }
 
-	KDPoint( TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id)
+	FKDPoint( TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id)
     {
         static_assert( numberOfDimensions == 4, "Point dimensionality differs from the number of passed arguments." );
         theId= id;
@@ -127,16 +127,16 @@ private:
 
 /* Utility functions to create 1-, 2-, 3-, or 4-Points from values. */
 template <typename TYPE>
-KDPoint<TYPE, 1> make_KDPoint(TYPE x, unsigned int id) {
-  KDPoint<TYPE, 1> result;
+FKDPoint<TYPE, 1> make_FKDPoint(TYPE x, unsigned int id) {
+  FKDPoint<TYPE, 1> result;
   result.setDimension(0,x);
   result.setId(id);
   return result;
 }
 
 template <typename TYPE>
-KDPoint<TYPE, 2> make_KDPoint(TYPE x, TYPE y, unsigned int id) {
-  KDPoint<TYPE, 2> result;
+FKDPoint<TYPE, 2> make_FKDPoint(TYPE x, TYPE y, unsigned int id) {
+  FKDPoint<TYPE, 2> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
   result.setId(id);
@@ -145,8 +145,8 @@ KDPoint<TYPE, 2> make_KDPoint(TYPE x, TYPE y, unsigned int id) {
 
 
 template <typename TYPE>
-KDPoint<TYPE, 3> make_KDPoint(TYPE x, TYPE y, TYPE z, unsigned int id) {
-  KDPoint<TYPE, 3> result;
+FKDPoint<TYPE, 3> make_FKDPoint(TYPE x, TYPE y, TYPE z, unsigned int id) {
+  FKDPoint<TYPE, 3> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
   result.setDimension(2,z);
@@ -155,8 +155,8 @@ KDPoint<TYPE, 3> make_KDPoint(TYPE x, TYPE y, TYPE z, unsigned int id) {
 }
 
 template <typename TYPE>
-KDPoint<TYPE, 4> make_KDPoint(TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id) {
-  KDPoint<TYPE, 4> result;
+FKDPoint<TYPE, 4> make_FKDPoint(TYPE x, TYPE y, TYPE z, TYPE w, unsigned int id) {
+  FKDPoint<TYPE, 4> result;
   result.setDimension(0,x);
   result.setDimension(1,y);
   result.setDimension(2,z);

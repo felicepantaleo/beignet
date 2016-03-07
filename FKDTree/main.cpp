@@ -1,5 +1,5 @@
 #include "FKDTree.h"
-#include "KDPoint.h"
+#include "FKDPoint.h"
 #include <chrono>
 #include "KDTreeLinkerAlgoT.h"
 #include <sstream>
@@ -162,16 +162,16 @@ int main(int argc, char* argv[])
 	}
 	tbb::task_scheduler_init init(numberOfThreads);
 
-	std::vector<KDPoint<float, 3> > points;
-	std::vector<KDPoint<float, 3> > minPoints;
-	std::vector<KDPoint<float, 3> > maxPoints;
+	std::vector<FKDPoint<float, 3> > points;
+	std::vector<FKDPoint<float, 3> > minPoints;
+	std::vector<FKDPoint<float, 3> > maxPoints;
 
 	float range_x = 0.51;
 	float range_y = 0.51;
 	float range_z = 0.51;
 
-//	KDPoint<float, 3> minPoint(0, 1, 8);
-//	KDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
+//	FKDPoint<float, 3> minPoint(0, 1, 8);
+//	FKDPoint<float, 3> maxPoint(0.4, 1.2, 8.3);
 	for (int i = 0; i < nPoints; ++i)
 	{
 		float x = static_cast<float>(rand())
@@ -185,10 +185,10 @@ int main(int argc, char* argv[])
 
 
 
-		points.push_back(make_KDPoint(x, y, z, i));
-		KDPoint<float, 3> m(x - range_x, y - range_y, z - range_z,0);
+		points.push_back(make_FKDPoint(x, y, z, i));
+		FKDPoint<float, 3> m(x - range_x, y - range_y, z - range_z,0);
 		minPoints.push_back(m);
-		KDPoint<float, 3> M(x + range_x, y + range_y, z + range_z,0);
+		FKDPoint<float, 3> M(x + range_x, y + range_y, z + range_z,0);
 		maxPoints.push_back(M);
 
 	}
