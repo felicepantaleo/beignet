@@ -230,8 +230,7 @@ public:
 
 			if(foundToBeInTheBox == shouldBeInTheBox)
 			{
-				std::cout << "Search correctness test completed successfully."
-						<< std::endl;
+
 				testGood &= true;
 			}
 			else
@@ -250,6 +249,10 @@ public:
 
 			}
 		}
+
+		if(testGood)
+			std::cout << "Search correctness test completed successfully."
+					<< std::endl;
 		return testGood;
 	}
 
