@@ -599,7 +599,7 @@ int main(int argc, char* argv[])
 					{
 
 						auto foundPoints =kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
-						test_correct_search(foundPoints, minPoints[i], maxPoints[i]);
+						kdtree.test_correct_search(foundPoints, minPoints[i], maxPoints[i]);
 						partial_results[i] = foundPoints.size();
 
 					});
