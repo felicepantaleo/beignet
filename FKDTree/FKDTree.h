@@ -230,6 +230,10 @@ public:
 				if(!inTheBox)
 				{
 					std::cerr << "Point " << i << " was wrongly found to be in the box." << std::endl;
+					thePoints[i].print();
+					minPoint.print();
+					maxPoint.print();
+
 					return false;
 
 				}
@@ -246,6 +250,9 @@ public:
 				if(inTheBox)
 				{
 					std::cerr << "Point " << i << " was wrongly found to be outside the box." << std::endl;
+					thePoints[i].print();
+					minPoint.print();
+					maxPoint.print();
 					return false;
 
 				}
