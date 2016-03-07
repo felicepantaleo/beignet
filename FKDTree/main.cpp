@@ -176,19 +176,17 @@ int main(int argc, char* argv[])
 	{
 		float x = static_cast<float>(rand())
 				/ (static_cast<float>(RAND_MAX / 10.1));
-		;
+
 		float y = static_cast<float>(rand())
 				/ (static_cast<float>(RAND_MAX / 10.1));
-		;
+
 		float z = static_cast<float>(rand())
 				/ (static_cast<float>(RAND_MAX / 10.1));
 
-
-
 		points.push_back(make_FKDPoint(x, y, z, i));
-		FKDPoint<float, 3> m(x - range_x, y - range_y, z - range_z,0);
+		FKDPoint<float, 3> m(x - range_x, y - range_y, z - range_z, 0);
 		minPoints.push_back(m);
-		FKDPoint<float, 3> M(x + range_x, y + range_y, z + range_z,0);
+		FKDPoint<float, 3> M(x + range_x, y + range_y, z + range_z, 0);
 		maxPoints.push_back(M);
 
 	}
@@ -619,9 +617,9 @@ int main(int argc, char* argv[])
 			{
 				tbb::parallel_for(0, nPoints, 1, [&](int i)
 //				for (int i = 0; i < nPoints; ++i)
-				{
-					kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
-				});
+						{
+							kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
+						});
 //				}
 			}
 			tbb::tick_count end_searching = tbb::tick_count::now();

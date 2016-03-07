@@ -224,18 +224,18 @@ public:
 						&& thePoints[i][dim] >= minPoint[dim]);
 			}
 
+			bool foundToBeInTheBox = std::find(foundPoints.begin(),
+					foundPoints.end(), thePoints[i].getId())
+					!= foundPoints.end();
 
-			bool foundToBeInTheBox = std::find(foundPoints.begin(), foundPoints.end(),
-					thePoints[i].getId()) != foundPoints.end();
-
-			if(foundToBeInTheBox == shouldBeInTheBox)
+			if (foundToBeInTheBox == shouldBeInTheBox)
 			{
 
 				testGood &= true;
 			}
 			else
 			{
-				if(foundToBeInTheBox)
+				if (foundToBeInTheBox)
 					std::cerr << "Point " << thePoints[i].getId()
 							<< " was wrongly found to be in the box."
 							<< std::endl;
@@ -244,13 +244,12 @@ public:
 							<< " was wrongly found to be outside the box."
 							<< std::endl;
 
-
 				testGood &= false;
 
 			}
 		}
 
-		if(testGood)
+		if (testGood)
 			std::cout << "Search correctness test completed successfully."
 					<< std::endl;
 		return testGood;
