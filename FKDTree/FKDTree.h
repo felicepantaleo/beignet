@@ -213,6 +213,7 @@ public:
 			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
+		bool testGood = true;
 		for (unsigned int i = 0; i < theNumberOfPoints; ++i)
 		{
 
@@ -231,7 +232,7 @@ public:
 			{
 				std::cout << "Search correctness test completed successfully."
 						<< std::endl;
-				return true;
+				testGood &= true;
 			}
 			else
 			{
@@ -244,11 +245,12 @@ public:
 							<< " was wrongly found to be outside the box."
 							<< std::endl;
 
-				return false;
+
+				testGood &= false;
 
 			}
 		}
-
+		return testGood;
 	}
 
 	std::vector<TYPE> getDimensionVector(const int dimension) const
