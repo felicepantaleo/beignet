@@ -13,7 +13,6 @@
 #include "KDPoint.h"
 #include "FQueue.h"
 
-
 template<class TYPE, int numberOfDimensions>
 class FKDTree
 {
@@ -46,7 +45,6 @@ public:
 		thePoints = points;
 
 	}
-
 
 	FKDTree()
 	{
@@ -81,11 +79,12 @@ public:
 		theIds = std::move(other.theIds);
 
 		thePoints = std::move(other.thePoints);
-		for (int i =0; i< numberOfDimensions; ++i)
+		for (int i = 0; i < numberOfDimensions; ++i)
 			theDimensions = std::move(other.theDimensions);
 	}
 
-	FKDTree<TYPE, numberOfDimensions>& operator=(FKDTree<TYPE, numberOfDimensions>&& other)
+	FKDTree<TYPE, numberOfDimensions>& operator=(
+			FKDTree<TYPE, numberOfDimensions> && other)
 	{
 
 		if (this != &other)
@@ -105,7 +104,7 @@ public:
 			theIds = std::move(other.theIds);
 
 			thePoints = std::move(other.thePoints);
-			for (int i =0; i< numberOfDimensions; ++i)
+			for (int i = 0; i < numberOfDimensions; ++i)
 				theDimensions = std::move(other.theDimensions);
 		}
 		return *this;
@@ -122,8 +121,7 @@ public:
 		theIds.push_back(point.getId());
 	}
 
-
-	void push_back(KDPoint<TYPE, numberOfDimensions>&& point)
+	void push_back(KDPoint<TYPE, numberOfDimensions> && point)
 	{
 
 		thePoints.push_back(point);
@@ -164,11 +162,9 @@ public:
 		return point;
 	}
 
-
-
 	std::vector<unsigned int> search_in_the_box(
-			const KDPoint<TYPE, numberOfDimensions>& ,
-			const KDPoint<TYPE, numberOfDimensions>& ) const;
+			const KDPoint<TYPE, numberOfDimensions>&,
+			const KDPoint<TYPE, numberOfDimensions>&) const;
 
 	bool test_correct_build(unsigned int index = 0, int dimension = 0) const
 	{
@@ -213,53 +209,47 @@ public:
 
 	}
 
-	bool test_correct_search(const std::vector<unsigned int> foundPoints, const KDPoint<TYPE, numberOfDimensions>& minPoint,
+	bool test_correct_search(const std::vector<unsigned int> foundPoints,
+			const KDPoint<TYPE, numberOfDimensions>& minPoint,
 			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 	{
-		for(unsigned int i= 0; i<theNumberOfPoints; ++i)
+		for (unsigned int i = 0; i < theNumberOfPoints; ++i)
 		{
-			if(std::find(foundPoints.begin(), foundPoints.end(), thePoints[i].getId())!=foundPoints.end())
+
+			bool shouldBeInTheBox = true;
+			for (int dim = 0; dim < numberOfDimensions; ++dim)
 			{
-				bool inTheBox = true;
-				for (int dim = 0; dim < numberOfDimensions; ++dim)
-					{
-						inTheBox &= (thePoints[i][dim] <= maxPoint[dim]
-								&& thePoints[i][dim] >= minPoint[dim]);
-					}
-
-				if(!inTheBox)
-				{
-					std::cerr << "Point " << thePoints[i].getId()<< " was wrongly found to be in the box." << std::endl;
-
-
-					return false;
-
-				}
-			} else
-			{
-
-				bool inTheBox = true;
-				for (int dim = 0; dim < numberOfDimensions; ++dim)
-					{
-						inTheBox &= (thePoints[i][dim] <= maxPoint[dim]
-								&& thePoints[i][dim] >= minPoint[dim]);
-					}
-
-				if(inTheBox)
-				{
-					std::cerr << "Point " << thePoints[i].getId() << " was wrongly found to be outside the box." << std::endl;
-
-
-				}
-
+				shouldBeInTheBox &= (thePoints[i][dim] <= maxPoint[dim]
+						&& thePoints[i][dim] >= minPoint[dim]);
 			}
 
 
-		}
-		std::cout << "Search correctness test completed successfully." << std::endl;
-		return true;
-	}
+			bool foundToBeInTheBox = std::find(foundPoints.begin(), foundPoints.end(),
+					thePoints[i].getId()) != foundPoints.end();
 
+			if(foundToBeInTheBox == shouldBeInTheBox)
+			{
+				std::cout << "Search correctness test completed successfully."
+						<< std::endl;
+				return true;
+			}
+			else
+			{
+				if(foundToBeInTheBox)
+					std::cerr << "Point " << thePoints[i].getId()
+							<< " was wrongly found to be in the box."
+							<< std::endl;
+				else
+					std::cerr << "Point " << thePoints[i].getId()
+							<< " was wrongly found to be outside the box."
+							<< std::endl;
+
+				return false;
+
+			}
+		}
+
+	}
 
 	std::vector<TYPE> getDimensionVector(const int dimension) const
 	{
@@ -306,9 +296,8 @@ private:
 
 };
 
-
 template<class TYPE, int numberOfDimensions>
-std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
+std::vector<unsigned int> FKDTree<TYPE, numberOfDimensions>::search_in_the_box(
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 {
@@ -322,8 +311,7 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 	{
 
 		int dimension = depth % numberOfDimensions;
-		unsigned int numberOfIndecesToVisitThisDepth =
-				indecesToVisit.size();
+		unsigned int numberOfIndecesToVisitThisDepth = indecesToVisit.size();
 		for (unsigned int visitedIndecesThisDepth = 0;
 				visitedIndecesThisDepth < numberOfIndecesToVisitThisDepth;
 				visitedIndecesThisDepth++)
@@ -335,7 +323,7 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 					dimension);
 
 			if (intersection && isInTheBox(index, minPoint, maxPoint))
-				result.push_back(index);
+				result.push_back(theIds[index]);
 
 			bool isLowerThanBoxMin = theDimensions[dimension][index]
 					< minPoint[dimension];
@@ -369,11 +357,9 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 	return result;
 }
 
-
-
 template<class TYPE, int numberOfDimensions>
 
-void FKDTree<TYPE,numberOfDimensions>::build()
+void FKDTree<TYPE, numberOfDimensions>::build()
 {
 	//gather kdtree building
 	int dimension;
@@ -385,8 +371,7 @@ void FKDTree<TYPE,numberOfDimensions>::build()
 
 		dimension = depth % numberOfDimensions;
 		unsigned int firstIndexInDepth = (1 << depth) - 1;
-		for (int indexInDepth = 0; indexInDepth < (1 << depth);
-				++indexInDepth)
+		for (int indexInDepth = 0; indexInDepth < (1 << depth); ++indexInDepth)
 		{
 			unsigned int indexInArray = firstIndexInDepth + indexInDepth;
 			unsigned int leftSonIndexInArray = 2 * indexInArray + 1;
@@ -394,8 +379,7 @@ void FKDTree<TYPE,numberOfDimensions>::build()
 
 			unsigned int whichElementInInterval = partition_complete_kdtree(
 					theIntervalLength[indexInArray]);
-			std::nth_element(
-					thePoints.begin() + theIntervalMin[indexInArray],
+			std::nth_element(thePoints.begin() + theIntervalMin[indexInArray],
 					thePoints.begin() + theIntervalMin[indexInArray]
 							+ whichElementInInterval,
 					thePoints.begin() + theIntervalMin[indexInArray]
@@ -415,15 +399,14 @@ void FKDTree<TYPE,numberOfDimensions>::build()
 			{
 				theIntervalMin[leftSonIndexInArray] =
 						theIntervalMin[indexInArray];
-				theIntervalLength[leftSonIndexInArray] =
-						whichElementInInterval;
+				theIntervalLength[leftSonIndexInArray] = whichElementInInterval;
 			}
 
 			if (rightSonIndexInArray < theNumberOfPoints)
 			{
 				theIntervalMin[rightSonIndexInArray] =
-						theIntervalMin[indexInArray]
-								+ whichElementInInterval + 1;
+						theIntervalMin[indexInArray] + whichElementInInterval
+								+ 1;
 				theIntervalLength[rightSonIndexInArray] =
 						(theIntervalLength[indexInArray] - 1
 								- whichElementInInterval);
@@ -437,8 +420,7 @@ void FKDTree<TYPE,numberOfDimensions>::build()
 	for (unsigned int indexInArray = firstIndexInDepth;
 			indexInArray < theNumberOfPoints; ++indexInArray)
 	{
-		add_at_position(thePoints[theIntervalMin[indexInArray]],
-				indexInArray);
+		add_at_position(thePoints[theIntervalMin[indexInArray]], indexInArray);
 
 	}
 
@@ -446,24 +428,25 @@ void FKDTree<TYPE,numberOfDimensions>::build()
 
 template<class TYPE, int numberOfDimensions>
 
-unsigned int FKDTree<TYPE,numberOfDimensions>::leftSonIndex(unsigned int index) const
+unsigned int FKDTree<TYPE, numberOfDimensions>::leftSonIndex(
+		unsigned int index) const
 {
 	return 2 * index + 1;
 }
 
 template<class TYPE, int numberOfDimensions>
 
-unsigned int FKDTree<TYPE,numberOfDimensions>::rightSonIndex(unsigned int index) const
+unsigned int FKDTree<TYPE, numberOfDimensions>::rightSonIndex(
+		unsigned int index) const
 {
 	return 2 * index + 2;
 }
 
 template<class TYPE, int numberOfDimensions>
 
-bool FKDTree<TYPE,numberOfDimensions>::intersects(unsigned int index,
+bool FKDTree<TYPE, numberOfDimensions>::intersects(unsigned int index,
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
-		const KDPoint<TYPE, numberOfDimensions>& maxPoint,
-		int dimension) const
+		const KDPoint<TYPE, numberOfDimensions>& maxPoint, int dimension) const
 {
 	return (theDimensions[dimension][index] <= maxPoint[dimension]
 			&& theDimensions[dimension][index] >= minPoint[dimension]);
@@ -471,7 +454,7 @@ bool FKDTree<TYPE,numberOfDimensions>::intersects(unsigned int index,
 
 template<class TYPE, int numberOfDimensions>
 
-bool FKDTree<TYPE,numberOfDimensions>::isInTheBox(unsigned int index,
+bool FKDTree<TYPE, numberOfDimensions>::isInTheBox(unsigned int index,
 		const KDPoint<TYPE, numberOfDimensions>& minPoint,
 		const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
 {
