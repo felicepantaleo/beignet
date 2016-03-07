@@ -1,10 +1,3 @@
-/*
- * FKDTree.h
- *
- *  Created on: Feb 10, 2016
- *      Author: fpantale
- */
-
 #ifndef FKDTREE_FKDTREE_H_
 #define FKDTREE_FKDTREE_H_
 
@@ -220,6 +213,52 @@ public:
 
 	}
 
+	bool test_correct_search(const std::vector<unsigned int> foundPoints, const KDPoint<TYPE, numberOfDimensions>& minPoint,
+			const KDPoint<TYPE, numberOfDimensions>& maxPoint) const
+	{
+		for(unsigned int i= 0; i<theNumberOfPoints; ++i)
+		{
+			if(std::find(foundPoints.begin(), foundPoints.end(), i)!=foundPoints.end())
+			{
+				bool inTheBox = true;
+				for (int dim = 0; dim < numberOfDimensions; ++dim)
+					{
+						inTheBox &= (thePoints[i][dim] <= maxPoint[dim]
+								&& thePoints[i][dim] >= minPoint[dim]);
+					}
+
+				if(!inTheBox)
+				{
+					std::cerr << "Point " << i << " was wrongly found to be in the box." << std::endl;
+					return false;
+
+				}
+			} else
+			{
+
+				bool inTheBox = true;
+				for (int dim = 0; dim < numberOfDimensions; ++dim)
+					{
+						inTheBox &= (thePoints[i][dim] <= maxPoint[dim]
+								&& thePoints[i][dim] >= minPoint[dim]);
+					}
+
+				if(inTheBox)
+				{
+					std::cerr << "Point " << i << " was wrongly found to be outside the box." << std::endl;
+					return false;
+
+				}
+
+			}
+
+
+		}
+		std::cout << "Search correctness test completed successfully." << std::endl;
+		return true;
+	}
+
+
 	std::vector<TYPE> getDimensionVector(const int dimension) const
 	{
 		if (dimension < numberOfDimensions)
@@ -274,7 +313,7 @@ std::vector<unsigned int> FKDTree<TYPE,numberOfDimensions>::search_in_the_box(
 //			std::deque<unsigned int> indecesToVisit;
 	FQueue<unsigned int> indecesToVisit(128);
 	std::vector<unsigned int> result;
-	result.reserve(40);
+	result.reserve(16);
 	indecesToVisit.push_back(0);
 
 	for (int depth = 0; depth < theDepth + 1; ++depth)
