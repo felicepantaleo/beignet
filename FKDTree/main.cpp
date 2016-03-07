@@ -598,7 +598,10 @@ int main(int argc, char* argv[])
 					[&](int i)
 					{
 
-						partial_results[i] =kdtree.search_in_the_box(minPoints[i], maxPoints[i]).size();
+						auto foundPoints =kdtree.search_in_the_box(minPoints[i], maxPoints[i]);
+						test_correct_search(foundPoints, minPoints[i], maxPoints[i]);
+						partial_results[i] = foundPoints.size();
+
 					});
 			tbb::tick_count end_searching = tbb::tick_count::now();
 			pointsFound = std::accumulate(partial_results.begin(),
